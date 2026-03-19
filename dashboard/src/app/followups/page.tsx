@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getAllFollowups, toggleFollowupComplete } from '@/lib/supabase-queries';
 import { Followup, Patient, SURGERY_TYPE_LABELS, FOLLOWUP_RULES, SurgeryType } from '@/types/patient';
 import { ClipboardCheck, Calendar, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -143,8 +142,7 @@ export default function FollowupsPage() {
   ];
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900">{t('followup.title')}</h1>
           <p className="text-sm text-gray-500 mt-0.5">{t('followup.subtitle')}</p>
@@ -365,6 +363,5 @@ export default function FollowupsPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }

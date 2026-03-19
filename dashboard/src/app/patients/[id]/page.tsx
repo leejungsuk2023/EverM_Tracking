@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Patient, Followup } from '@/types/patient';
 import { getPatientById, getFollowups } from '@/lib/supabase-queries';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import PatientInfo from '@/components/patients/PatientInfo';
 import PatientTimeline from '@/components/patients/PatientTimeline';
 import DocumentChecklist from '@/components/patients/DocumentChecklist';
@@ -45,27 +44,23 @@ export default function PatientDetailPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      </DashboardLayout>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
     );
   }
 
   if (!patient) {
     return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <p className="text-slate-500">{t('common.no_data')}</p>
-          <button
-            onClick={() => router.push('/patients')}
-            className="text-sm text-blue-600 hover:underline"
-          >
-            {t('patient.back_to_list')}
-          </button>
-        </div>
-      </DashboardLayout>
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-slate-500">{t('common.no_data')}</p>
+        <button
+          onClick={() => router.push('/patients')}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          {t('patient.back_to_list')}
+        </button>
+      </div>
     );
   }
 
@@ -78,8 +73,7 @@ export default function PatientDetailPage() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Back button */}
         <button
           onClick={() => router.push('/patients')}
@@ -110,6 +104,5 @@ export default function PatientDetailPage() {
         {/* Interpreter Schedule */}
         <InterpreterScheduleView patientId={patient.patient_id} />
       </div>
-    </DashboardLayout>
   );
 }

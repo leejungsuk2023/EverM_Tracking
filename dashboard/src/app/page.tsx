@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { getPatients, getAllFollowups } from '@/lib/supabase-queries';
 import { Patient } from '@/types/patient';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import StatCard from '@/components/dashboard/StatCard';
 import UpcomingSurgeries from '@/components/dashboard/UpcomingSurgeries';
 import PipelineSummary from '@/components/dashboard/PipelineSummary';
@@ -67,8 +66,7 @@ export default function Home() {
   const docIncomplete = getDocIncompleteCount(patients);
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900">{t('dashboard.title')}</h1>
           <p className="text-sm text-gray-500 mt-0.5">{TODAY_STR} 기준</p>
@@ -115,6 +113,5 @@ export default function Home() {
         {/* Bottom: RecentActivity */}
         <RecentActivity activities={[]} />
       </div>
-    </DashboardLayout>
   );
 }

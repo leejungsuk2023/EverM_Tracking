@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Patient, PIPELINE_STAGES } from '@/types/patient';
 import { getPatients } from '@/lib/supabase-queries';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Search, CheckCircle2, XCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
@@ -35,8 +34,7 @@ export default function PatientsPage() {
   );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-slate-800">{t('patients.title')}</h1>
           <span className="text-sm text-slate-500">{filtered.length}{t('pipeline.patients')}</span>
@@ -139,6 +137,5 @@ export default function PatientsPage() {
           )}
         </div>
       </div>
-    </DashboardLayout>
   );
 }
