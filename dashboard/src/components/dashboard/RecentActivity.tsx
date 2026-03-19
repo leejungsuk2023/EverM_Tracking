@@ -1,4 +1,7 @@
+'use client';
+
 import { Activity, ActivityType } from '@/data/mock-activities';
+import { useLanguage } from '@/lib/i18n';
 import {
   ArrowRightLeft,
   FileCheck,
@@ -28,7 +31,7 @@ const activityConfig: Record<
 
 function formatTimestamp(ts: string): string {
   const date = new Date(ts);
-  return date.toLocaleString('ko-KR', {
+  return date.toLocaleString(undefined, {
     month: 'numeric',
     day: 'numeric',
     hour: '2-digit',
@@ -37,11 +40,12 @@ function formatTimestamp(ts: string): string {
 }
 
 export default function RecentActivity({ activities }: RecentActivityProps) {
+  const { t } = useLanguage();
   const recent = activities.slice(0, 10);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h2 className="text-base font-semibold text-gray-900 mb-4">최근 활동</h2>
+      <h2 className="text-base font-semibold text-gray-900 mb-4">{t('dashboard.recent_activity')}</h2>
       <ul className="space-y-3">
         {recent.map((activity) => {
           const config = activityConfig[activity.type];

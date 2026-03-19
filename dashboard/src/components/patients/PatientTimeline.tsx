@@ -1,13 +1,15 @@
 'use client';
 
-import { Patient, PIPELINE_STAGES, PipelineStage } from '@/types/patient';
+import { Patient, PIPELINE_STAGES } from '@/types/patient';
 import { Check } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 interface PatientTimelineProps {
   patient: Patient;
 }
 
 export default function PatientTimeline({ patient }: PatientTimelineProps) {
+  const { t } = useLanguage();
   const currentIndex = PIPELINE_STAGES.findIndex(s => s.key === patient.pipeline_stage);
 
   const getStepState = (index: number): 'completed' | 'current' | 'future' => {
@@ -18,7 +20,7 @@ export default function PatientTimeline({ patient }: PatientTimelineProps) {
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-base font-semibold text-slate-800 mb-6">파이프라인 진행 상황</h2>
+      <h2 className="text-base font-semibold text-slate-800 mb-6">{t('patient.timeline')}</h2>
       <div className="overflow-x-auto">
         <div className="flex items-start min-w-max gap-0">
           {PIPELINE_STAGES.map((stage, index) => {
@@ -52,7 +54,7 @@ export default function PatientTimeline({ patient }: PatientTimelineProps) {
                       state === 'future' ? 'text-slate-400' : 'text-slate-700 font-medium',
                     ].join(' ')}
                   >
-                    {stage.labelKo}
+                    {t(`stage.${stage.key}`)}
                   </p>
                 </div>
 

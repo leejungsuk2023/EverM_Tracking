@@ -11,6 +11,7 @@ import UpcomingSurgeries from '@/components/dashboard/UpcomingSurgeries';
 import PipelineSummary from '@/components/dashboard/PipelineSummary';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import { Stethoscope, Users, FileX2, ClipboardCheck } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 const TODAY = new Date();
 const TODAY_STR = TODAY.toISOString().split('T')[0];
@@ -36,6 +37,7 @@ function getDocIncompleteCount(patients: Patient[]): number {
 }
 
 export default function Home() {
+  const { t } = useLanguage();
   const [patients, setPatients] = useState<Patient[]>(mockPatients);
   const [todayFollowupCount, setTodayFollowupCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -70,37 +72,37 @@ export default function Home() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">운영 대시보드</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t('dashboard.title')}</h1>
           <p className="text-sm text-gray-500 mt-0.5">{TODAY_STR} 기준</p>
         </div>
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatCard
-            title="활성 환자"
+            title={t('dashboard.active_patients')}
             value={loading ? '-' : activePatients}
-            change="파이프라인 진행 중"
+            change={t('dashboard.pipeline_in_progress')}
             icon={Users}
             color="blue"
           />
           <StatCard
-            title="이번 달 수술"
+            title={t('dashboard.surgeries_this_month')}
             value={loading ? '-' : thisMonthSurgeries}
-            change={`${TODAY.getFullYear()}년 ${TODAY.getMonth() + 1}월`}
+            change={new Date(TODAY.getFullYear(), TODAY.getMonth(), 1).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
             icon={Stethoscope}
             color="green"
           />
           <StatCard
-            title="서류 미완료"
+            title={t('dashboard.incomplete_docs')}
             value={loading ? '-' : docIncomplete}
-            change="서류 확인 필요 환자"
+            change={t('dashboard.doc_check_needed')}
             icon={FileX2}
             color="orange"
           />
           <StatCard
-            title="오늘 팔로업"
+            title={t('dashboard.today_followups')}
             value={loading ? '-' : todayFollowupCount}
-            change="미완료 기준"
+            change={t('dashboard.incomplete_basis')}
             icon={ClipboardCheck}
             color="purple"
           />

@@ -6,10 +6,12 @@ import { Patient } from '@/types/patient';
 import { getPatients } from '@/lib/supabase-queries';
 import { mockPatients } from '@/data/mock-patients';
 import KanbanBoard from '@/components/pipeline/KanbanBoard';
+import { useLanguage } from '@/lib/i18n';
 
 type FilterMode = 'all' | 'doc_incomplete' | 'followup_pending';
 
 export default function PipelinePage() {
+  const { t } = useLanguage();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export default function PipelinePage() {
     getPatients()
       .then(setPatients)
       .catch((err) => {
-        setError((err.message ?? '데이터 로드 실패') + ' (목업 데이터로 표시 중)');
+        setError((err.message ?? t('common.error')) + ' (목업 데이터로 표시 중)');
         setPatients(mockPatients);
       })
       .finally(() => setLoading(false));
@@ -29,7 +31,6 @@ export default function PipelinePage() {
   const filtered = useMemo(() => {
     let result = patients;
 
-    // Search by k_name or full_name
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       result = result.filter(
@@ -39,7 +40,6 @@ export default function PipelinePage() {
       );
     }
 
-    // Filter mode
     if (filterMode === 'doc_incomplete') {
       result = result.filter(
         (p) =>
@@ -58,10 +58,10 @@ export default function PipelinePage() {
     return result;
   }, [patients, search, filterMode]);
 
-  const filterButtons: { key: FilterMode; label: string }[] = [
-    { key: 'all', label: '전체' },
-    { key: 'doc_incomplete', label: '서류 미완료' },
-    { key: 'followup_pending', label: '팔로업 대기' },
+  const filterButtons: { key: FilterMode; labelKey: string }[] = [
+    { key: 'all', labelKey: 'pipeline.filter_all' },
+    { key: 'doc_incomplete', labelKey: 'pipeline.filter_incomplete_docs' },
+    { key: 'followup_pending', labelKey: 'pipeline.filter_followup' },
   ];
 
   return (
@@ -74,7 +74,7 @@ export default function PipelinePage() {
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="환자 검색..."
+              placeholder={t('pipeline.search')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 w-48"
@@ -84,7 +84,7 @@ export default function PipelinePage() {
           {/* Filter buttons */}
           <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
             <Filter size={12} className="ml-1.5 text-slate-400" />
-            {filterButtons.map(({ key, label }) => (
+            {filterButtons.map(({ key, labelKey }) => (
               <button
                 key={key}
                 onClick={() => setFilterMode(key)}
@@ -95,18 +95,19 @@ export default function PipelinePage() {
                     : 'text-slate-500 hover:text-slate-700',
                 ].join(' ')}
               >
-                {label}
+                {t(labelKey)}
               </button>
             ))}
           </div>
         </div>
 
         <p className="text-sm text-slate-500">
-          {loading ? '로딩 중...' : (
+          {loading ? t('common.loading') : (
             <>
-              표시 <span className="font-semibold text-slate-800">{filtered.length}</span>명
+              <span className="font-semibold text-slate-800">{filtered.length}</span>
+              {' '}{t('pipeline.patients')}
               {filtered.length !== patients.length && (
-                <span className="text-slate-400"> / 전체 {patients.length}명</span>
+                <span className="text-slate-400"> / {patients.length}{t('pipeline.patients')}</span>
               )}
             </>
           )}

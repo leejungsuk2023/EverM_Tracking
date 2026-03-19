@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Followup } from '@/types/patient';
 import { toggleFollowupComplete } from '@/lib/supabase-queries';
 import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 interface FollowupScheduleProps {
   followups: Followup[];
@@ -18,6 +19,7 @@ function getDaysDiff(surgeryDate: string, followupDate: string): number {
 }
 
 export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: FollowupScheduleProps) {
+  const { t } = useLanguage();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -60,9 +62,9 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-base font-semibold text-slate-800 mb-4">팔로업 일정</h2>
+      <h2 className="text-base font-semibold text-slate-800 mb-4">{t('patient.followup_schedule')}</h2>
       {followups.length === 0 ? (
-        <p className="text-sm text-slate-400">등록된 팔로업 일정이 없습니다.</p>
+        <p className="text-sm text-slate-400">{t('common.no_data')}</p>
       ) : (
         <div className="space-y-4">
           {followups.map((followup) => {
@@ -73,6 +75,12 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
             const daysDiff = getDaysDiff(surgeryDate, followup.scheduled_date);
             const dLabel = daysDiff >= 0 ? `D+${daysDiff}` : `D${daysDiff}`;
             const isToggling = toggling === followup.followup_id;
+
+            const statusLabel = followup.completed
+              ? t('followup.completed')
+              : isOverdue
+              ? t('followup.overdue_badge')
+              : t('followup.scheduled');
 
             return (
               <div
@@ -99,7 +107,7 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
                   </button>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium ${isOverdue ? 'text-red-700' : 'text-slate-700'}`}>
-                      {followup.followup_number}차 팔로업
+                      {followup.followup_number}{t('followup.fu_number')}
                       <span className="ml-2 text-xs font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
                         {dLabel}
                       </span>
@@ -117,14 +125,14 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
                         : 'bg-slate-100 text-slate-500'
                     }`}
                   >
-                    {followup.completed ? '완료' : isOverdue ? '지연' : '예정'}
+                    {statusLabel}
                   </span>
                 </div>
                 {/* Memo input */}
                 <div className="mt-2 pl-8">
                   <input
                     type="text"
-                    placeholder="메모 입력..."
+                    placeholder={t('followup.memo') + '...'}
                     value={memos[followup.followup_id] ?? ''}
                     onChange={e => setMemos(prev => ({ ...prev, [followup.followup_id]: e.target.value }))}
                     onBlur={() => handleMemoBlur(followup)}

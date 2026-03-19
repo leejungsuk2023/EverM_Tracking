@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Patient, Followup, SurgeryType } from '@/types/patient';
 import DayDetail from './DayDetail';
+import { useLanguage } from '@/lib/i18n';
 
 const SURGERY_TYPE_COLORS: Record<SurgeryType, string> = {
   '2JAW_SSRO': 'bg-blue-100 text-blue-700',
@@ -16,12 +17,10 @@ const SURGERY_TYPE_COLORS: Record<SurgeryType, string> = {
 const SURGERY_TYPE_LABELS: Record<SurgeryType, string> = {
   '2JAW_SSRO': 'SSRO',
   '2JAW_IVRO': 'IVRO',
-  'VLINE': 'V라인',
-  'CONTOURING': '윤곽',
+  'VLINE': 'V-Line',
+  'CONTOURING': 'Contouring',
   'ASO': 'ASO',
 };
-
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
 type ViewMode = 'month' | 'week';
 
@@ -57,6 +56,7 @@ interface SurgeryCalendarProps {
 }
 
 export default function SurgeryCalendar({ patients, followups }: SurgeryCalendarProps) {
+  const { t } = useLanguage();
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -132,9 +132,9 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
 
   const weekLabel = (() => {
     const end = addDays(weekStart, 6);
-    const startStr = weekStart.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
-    const endStr = end.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
-    return `${weekStart.getFullYear()}년 ${startStr} – ${endStr}`;
+    const startStr = weekStart.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+    const endStr = end.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+    return `${weekStart.getFullYear()} ${startStr} – ${endStr}`;
   })();
 
   const handleDayClick = (date: Date) => {
@@ -221,7 +221,7 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
           </button>
           <h2 className="text-base font-semibold text-gray-900 min-w-[180px] text-center">
             {viewMode === 'month'
-              ? `${currentYear}년 ${currentMonth + 1}월`
+              ? new Date(currentYear, currentMonth, 1).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })
               : weekLabel}
           </h2>
           <button
@@ -243,7 +243,7 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
                 : 'text-gray-500 hover:text-gray-700',
             ].join(' ')}
           >
-            월간
+            {t('calendar.view_month')}
           </button>
           <button
             onClick={() => setViewMode('week')}
@@ -254,16 +254,16 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
                 : 'text-gray-500 hover:text-gray-700',
             ].join(' ')}
           >
-            주간
+            {t('calendar.view_week')}
           </button>
         </div>
       </div>
 
       {/* Day labels row */}
       <div className="grid grid-cols-7 border-b border-gray-100">
-        {DAY_LABELS.map((label, i) => (
+        {t('calendar.weekdays').split(',').map((label, i) => (
           <div
-            key={label}
+            key={i}
             className={`py-2 text-center text-xs font-semibold tracking-wide ${
               i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-gray-400'
             }`}
@@ -292,7 +292,7 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
           </span>
         ))}
         <span className="text-[11px] px-2 py-0.5 rounded font-medium bg-gray-100 text-gray-500">
-          팔로업
+          {t('calendar.followup')}
         </span>
       </div>
 

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Patient, PIPELINE_STAGES, SURGERY_TYPE_LABELS } from '@/types/patient';
+import { Patient, PIPELINE_STAGES } from '@/types/patient';
 import { updatePatient } from '@/lib/supabase-queries';
 import { User, Globe, Stethoscope, Calendar, Activity } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 interface PatientInfoProps {
   patient: Patient;
@@ -11,6 +12,7 @@ interface PatientInfoProps {
 }
 
 export default function PatientInfo({ patient, onUpdate }: PatientInfoProps) {
+  const { t } = useLanguage();
   const stageInfo = PIPELINE_STAGES.find(s => s.key === patient.pipeline_stage);
   const [notes, setNotes] = useState(patient.notes ?? '');
   const [saving, setSaving] = useState(false);
@@ -42,7 +44,7 @@ export default function PatientInfo({ patient, onUpdate }: PatientInfoProps) {
         </div>
         <div className="flex-shrink-0">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
-            {stageInfo?.labelKo ?? patient.pipeline_stage}
+            {stageInfo ? t(`stage.${stageInfo.key}`) : patient.pipeline_stage}
           </span>
         </div>
       </div>
@@ -51,41 +53,43 @@ export default function PatientInfo({ patient, onUpdate }: PatientInfoProps) {
         <div className="flex items-center gap-2 text-sm">
           <Globe size={16} className="text-slate-400" />
           <div>
-            <p className="text-xs text-slate-400">국적</p>
+            <p className="text-xs text-slate-400">{t('patient.nationality')}</p>
             <p className="font-medium text-slate-700">{patient.nationality}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <Stethoscope size={16} className="text-slate-400" />
           <div>
-            <p className="text-xs text-slate-400">수술 유형</p>
-            <p className="font-medium text-slate-700">{SURGERY_TYPE_LABELS[patient.surgery_type]}</p>
+            <p className="text-xs text-slate-400">{t('patient.surgery_type')}</p>
+            <p className="font-medium text-slate-700">{t(`surgery.${patient.surgery_type}`)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <Calendar size={16} className="text-slate-400" />
           <div>
-            <p className="text-xs text-slate-400">수술일</p>
+            <p className="text-xs text-slate-400">{t('patient.surgery_date')}</p>
             <p className="font-medium text-slate-700">{patient.surgery_date}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <Activity size={16} className="text-slate-400" />
           <div>
-            <p className="text-xs text-slate-400">현재 단계</p>
-            <p className="font-medium text-slate-700">{stageInfo?.label ?? patient.pipeline_stage}</p>
+            <p className="text-xs text-slate-400">{t('patient.current_stage')}</p>
+            <p className="font-medium text-slate-700">
+              {stageInfo ? t(`stage.${stageInfo.key}`) : patient.pipeline_stage}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Notes / Memo */}
       <div className="mt-4">
-        <p className="text-xs text-slate-400 mb-1">메모</p>
+        <p className="text-xs text-slate-400 mb-1">{t('patient.notes')}</p>
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
           rows={3}
-          placeholder="메모를 입력하세요..."
+          placeholder={t('patient.notes') + '...'}
           className="w-full text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-md p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
         />
         {isDirty && (
@@ -95,7 +99,7 @@ export default function PatientInfo({ patient, onUpdate }: PatientInfoProps) {
               disabled={saving}
               className="text-xs px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 transition-colors"
             >
-              {saving ? '저장 중...' : '저장'}
+              {saving ? t('patient.saving') : t('patient.save')}
             </button>
           </div>
         )}

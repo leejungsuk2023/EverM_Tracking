@@ -1,17 +1,16 @@
 'use client';
 
 import { Patient, PipelineStage } from '@/types/patient';
+import { useLanguage } from '@/lib/i18n';
 import PatientCard from './PatientCard';
 
 interface KanbanColumnProps {
   stageKey: PipelineStage;
   label: string;
-  labelKo: string;
   timeline: string;
   patients: Patient[];
 }
 
-// Column accent colors per stage group
 function getColumnAccent(stage: PipelineStage): string {
   const map: Partial<Record<PipelineStage, string>> = {
     CONSULTATION: 'border-slate-400',
@@ -30,7 +29,8 @@ function getColumnAccent(stage: PipelineStage): string {
   return map[stage] ?? 'border-slate-300';
 }
 
-export default function KanbanColumn({ stageKey, label, labelKo, timeline, patients }: KanbanColumnProps) {
+export default function KanbanColumn({ stageKey, label, timeline, patients }: KanbanColumnProps) {
+  const { t } = useLanguage();
   const accent = getColumnAccent(stageKey);
 
   return (
@@ -43,13 +43,13 @@ export default function KanbanColumn({ stageKey, label, labelKo, timeline, patie
             {patients.length}
           </span>
         </div>
-        <p className="text-xs text-slate-400 mt-0.5">{labelKo} · {timeline}</p>
+        <p className="text-xs text-slate-400 mt-0.5">{timeline}</p>
       </div>
 
       {/* Cards */}
       <div className="flex-1 p-2 space-y-2 overflow-y-auto min-h-[120px] max-h-[calc(100vh-200px)]">
         {patients.length === 0 ? (
-          <p className="text-xs text-slate-300 text-center pt-4">환자 없음</p>
+          <p className="text-xs text-slate-300 text-center pt-4">{t('pipeline.empty')}</p>
         ) : (
           patients.map((p) => <PatientCard key={p.patient_id} patient={p} />)
         )}

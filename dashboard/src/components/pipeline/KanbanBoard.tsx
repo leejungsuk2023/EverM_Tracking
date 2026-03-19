@@ -1,6 +1,7 @@
 'use client';
 
 import { Patient, PIPELINE_STAGES, PipelineStage } from '@/types/patient';
+import { useLanguage } from '@/lib/i18n';
 import KanbanColumn from './KanbanColumn';
 
 interface KanbanBoardProps {
@@ -8,7 +9,8 @@ interface KanbanBoardProps {
 }
 
 export default function KanbanBoard({ patients }: KanbanBoardProps) {
-  // Group patients by pipeline stage
+  const { t } = useLanguage();
+
   const grouped = PIPELINE_STAGES.reduce<Record<PipelineStage, Patient[]>>(
     (acc, stage) => {
       acc[stage.key] = patients.filter((p) => p.pipeline_stage === stage.key);
@@ -23,8 +25,7 @@ export default function KanbanBoard({ patients }: KanbanBoardProps) {
         <KanbanColumn
           key={stage.key}
           stageKey={stage.key}
-          label={stage.label}
-          labelKo={stage.labelKo}
+          label={t(`stage.${stage.key}`)}
           timeline={stage.timeline}
           patients={grouped[stage.key]}
         />

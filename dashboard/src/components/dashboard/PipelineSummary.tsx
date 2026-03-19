@@ -1,4 +1,5 @@
 import { Patient, PIPELINE_STAGES, PipelineStage } from '@/types/patient';
+import { useLanguage } from '@/lib/i18n';
 
 interface PipelineSummaryProps {
   patients: Patient[];
@@ -18,6 +19,7 @@ function getBarColor(stage: PipelineStage): string {
 }
 
 export default function PipelineSummary({ patients }: PipelineSummaryProps) {
+  const { t } = useLanguage();
   const stageCounts: Record<string, number> = {};
   for (const stage of PIPELINE_STAGES) {
     stageCounts[stage.key] = 0;
@@ -30,7 +32,7 @@ export default function PipelineSummary({ patients }: PipelineSummaryProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h2 className="text-base font-semibold text-gray-900 mb-4">파이프라인 현황</h2>
+      <h2 className="text-base font-semibold text-gray-900 mb-4">{t('dashboard.pipeline_summary')}</h2>
       <div className="space-y-2">
         {PIPELINE_STAGES.map((stage) => {
           const count = stageCounts[stage.key] || 0;
@@ -40,7 +42,7 @@ export default function PipelineSummary({ patients }: PipelineSummaryProps) {
           return (
             <div key={stage.key} className="flex items-center gap-3">
               <span className="w-28 shrink-0 text-right text-xs text-gray-500 leading-tight">
-                {stage.labelKo}
+                {t(`stage.${stage.key}`)}
               </span>
               <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
                 {count > 0 && (

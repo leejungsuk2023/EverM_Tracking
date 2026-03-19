@@ -5,8 +5,10 @@ import SurgeryCalendar from '@/components/calendar/SurgeryCalendar';
 import { Patient, Followup } from '@/types/patient';
 import { getPatients, getAllFollowups } from '@/lib/supabase-queries';
 import { mockPatients } from '@/data/mock-patients';
+import { useLanguage } from '@/lib/i18n';
 
 export default function CalendarPage() {
+  const { t } = useLanguage();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [followups, setFollowups] = useState<(Followup & { patient: Patient })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,12 +36,12 @@ export default function CalendarPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">수술 캘린더</h1>
-        <p className="text-sm text-gray-500 mt-0.5">월별 수술 및 팔로업 일정을 확인하세요.</p>
+        <h1 className="text-xl font-bold text-gray-900">{t('calendar.title')}</h1>
+        <p className="text-sm text-gray-500 mt-0.5">{t('calendar.subtitle')}</p>
       </div>
       {loading ? (
         <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-          일정을 불러오는 중...
+          {t('common.loading')}
         </div>
       ) : (
         <SurgeryCalendar patients={patients} followups={followups} />

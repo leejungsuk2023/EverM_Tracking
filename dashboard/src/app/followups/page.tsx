@@ -6,6 +6,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getAllFollowups, toggleFollowupComplete } from '@/lib/supabase-queries';
 import { Followup, Patient, SURGERY_TYPE_LABELS } from '@/types/patient';
 import { ClipboardCheck, Calendar, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 type FollowupWithPatient = Followup & { patient: Patient };
 type FilterTab = 'all' | 'today' | 'week' | 'overdue' | 'completed';
@@ -45,6 +46,7 @@ export default function FollowupsPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const [memoEdits, setMemoEdits] = useState<Record<string, string>>({});
 
+  const { t } = useLanguage();
   const today = getToday();
   const weekEnd = getWeekEnd();
 
@@ -118,19 +120,19 @@ export default function FollowupsPage() {
   }
 
   const FILTER_TABS: { key: FilterTab; label: string }[] = [
-    { key: 'all', label: '전체' },
-    { key: 'today', label: '오늘' },
-    { key: 'week', label: '이번 주' },
-    { key: 'overdue', label: '지연' },
-    { key: 'completed', label: '완료' },
+    { key: 'all', label: t('followup.all') },
+    { key: 'today', label: t('followup.today') },
+    { key: 'week', label: t('followup.this_week') },
+    { key: 'overdue', label: t('followup.overdue') },
+    { key: 'completed', label: t('followup.completed') },
   ];
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">팔로업 관리</h1>
-          <p className="text-sm text-gray-500 mt-0.5">전체 환자 팔로업 현황</p>
+          <h1 className="text-xl font-bold text-gray-900">{t('followup.title')}</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{t('followup.subtitle')}</p>
         </div>
 
         {/* Summary Cards */}
@@ -146,7 +148,7 @@ export default function FollowupsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-blue-700">{todayCount}</p>
-              <p className="text-sm text-gray-600">오늘 팔로업</p>
+              <p className="text-sm text-gray-600">{t('followup.today')}</p>
             </div>
           </button>
 
@@ -161,7 +163,7 @@ export default function FollowupsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-green-700">{weekCount}</p>
-              <p className="text-sm text-gray-600">이번 주 팔로업</p>
+              <p className="text-sm text-gray-600">{t('followup.this_week')}</p>
             </div>
           </button>
 
@@ -176,7 +178,7 @@ export default function FollowupsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-red-700">{overdueCount}</p>
-              <p className="text-sm text-gray-600">지연 팔로업</p>
+              <p className="text-sm text-gray-600">{t('followup.overdue')}</p>
             </div>
           </button>
         </div>
@@ -201,25 +203,25 @@ export default function FollowupsPage() {
         {/* Table */}
         {loading ? (
           <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-gray-400">
-            불러오는 중...
+            {t('common.loading')}
           </div>
         ) : filteredFollowups.length === 0 ? (
           <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
             <CheckCircle2 size={36} className="mx-auto mb-2 text-gray-300" />
-            <p className="text-sm text-gray-500">해당 팔로업이 없습니다.</p>
+            <p className="text-sm text-gray-500">{t('followup.empty')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  <th className="px-4 py-3 text-left">환자</th>
-                  <th className="px-4 py-3 text-left">수술 유형</th>
-                  <th className="px-4 py-3 text-center">F/U #</th>
-                  <th className="px-4 py-3 text-left">예정일</th>
+                  <th className="px-4 py-3 text-left">{t('followup.patient')}</th>
+                  <th className="px-4 py-3 text-left">{t('followup.surgery_type')}</th>
+                  <th className="px-4 py-3 text-center">{t('followup.fu_number')}</th>
+                  <th className="px-4 py-3 text-left">{t('followup.scheduled')}</th>
                   <th className="px-4 py-3 text-center">D+X</th>
-                  <th className="px-4 py-3 text-center">상태</th>
-                  <th className="px-4 py-3 text-left">메모</th>
+                  <th className="px-4 py-3 text-center">{t('followup.status')}</th>
+                  <th className="px-4 py-3 text-left">{t('followup.memo')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -278,7 +280,7 @@ export default function FollowupsPage() {
                           />
                           {overdue && (
                             <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
-                              지연
+                              {t('followup.overdue_badge')}
                             </span>
                           )}
                         </div>
@@ -293,7 +295,7 @@ export default function FollowupsPage() {
                             setMemoEdits((prev) => ({ ...prev, [followup.followup_id]: e.target.value }))
                           }
                           onBlur={() => handleMemoBlur(followup)}
-                          placeholder="메모 입력..."
+                          placeholder={t('followup.memo_placeholder')}
                           className="w-full min-w-[120px] rounded border border-transparent bg-transparent px-1 py-0.5 text-sm text-gray-600 placeholder-gray-300 outline-none transition hover:border-gray-200 focus:border-blue-300 focus:bg-white focus:ring-1 focus:ring-blue-200"
                         />
                       </td>

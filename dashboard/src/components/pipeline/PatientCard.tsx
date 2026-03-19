@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Patient, SURGERY_TYPE_LABELS } from '@/types/patient';
+import { Patient } from '@/types/patient';
+import { useLanguage } from '@/lib/i18n';
 
-// D-day 계산 (today 기준)
 function getDayDiff(surgeryDate: string): number {
   const today = new Date();
   const surgery = new Date(surgeryDate);
@@ -49,50 +49,36 @@ const SURGERY_BADGE_COLOR: Record<string, string> = {
   ASO: 'bg-orange-100 text-orange-700',
 };
 
-const EXCHANGE_LABEL: Record<string, string> = {
-  SELF: '자체환전',
-  TEAM_ARRANGED: '팀환전',
-  CARD_PLUS_10PCT: '카드+10%',
-};
-
 interface DocItem {
   key: keyof Pick<Patient, 'doc_passport' | 'doc_flight_in' | 'doc_flight_out' | 'doc_hotel' | 'doc_keta'>;
-  label: string;
+  labelKey: string;
 }
 
 const DOC_ITEMS: DocItem[] = [
-  { key: 'doc_passport', label: '여권' },
-  { key: 'doc_flight_in', label: '항공(입)' },
-  { key: 'doc_flight_out', label: '항공(출)' },
-  { key: 'doc_hotel', label: '숙소' },
-  { key: 'doc_keta', label: 'K-ETA' },
+  { key: 'doc_passport', labelKey: 'doc.passport' },
+  { key: 'doc_flight_in', labelKey: 'doc.flight_in' },
+  { key: 'doc_flight_out', labelKey: 'doc.flight_out' },
+  { key: 'doc_hotel', labelKey: 'doc.hotel' },
+  { key: 'doc_keta', labelKey: 'doc.keta' },
 ];
 
-function getAlerts(patient: Patient): { msg: string; color: string }[] {
-  const alerts: { msg: string; color: string }[] = [];
-  const dayDiff = getDayDiff(patient.surgery_date);
-
-  // 서류 지연: 수술 7일 이내인데 서류 미완료
-  const docsComplete = DOC_ITEMS.every((d) => patient[d.key]);
-  if (!docsComplete && dayDiff <= 7 && dayDiff >= 0) {
-    alerts.push({ msg: '서류 지연', color: 'bg-red-500' });
-  }
-
-  // 보증금 미납: 수술 14일 이내
-  if (!patient.deposit_paid && dayDiff <= 14 && dayDiff >= 0) {
-    alerts.push({ msg: '보증금 미납', color: 'bg-orange-400' });
-  }
-
-  // 통역사 미배정
-  if (!patient.interpreter_id) {
-    alerts.push({ msg: '통역사 미배정', color: 'bg-yellow-400' });
-  }
-
-  return alerts;
-}
-
 export default function PatientCard({ patient }: { patient: Patient }) {
-  const alerts = getAlerts(patient);
+  const { t } = useLanguage();
+
+  const alerts: { msgKey: string; color: string }[] = [];
+  const dayDiff = getDayDiff(patient.surgery_date);
+  const docsComplete = DOC_ITEMS.every((d) => patient[d.key]);
+
+  if (!docsComplete && dayDiff <= 7 && dayDiff >= 0) {
+    alerts.push({ msgKey: 'alert.doc_delay', color: 'bg-red-500' });
+  }
+  if (!patient.deposit_paid && dayDiff <= 14 && dayDiff >= 0) {
+    alerts.push({ msgKey: 'alert.deposit_unpaid', color: 'bg-orange-400' });
+  }
+  if (!patient.interpreter_id) {
+    alerts.push({ msgKey: 'alert.no_interpreter', color: 'bg-yellow-400' });
+  }
+
   const flag = NATIONALITY_FLAG[patient.nationality] ?? '🌐';
 
   return (
@@ -109,7 +95,7 @@ export default function PatientCard({ patient }: { patient: Patient }) {
       {/* Surgery type badge */}
       <div>
         <span className={`inline-flex px-1.5 py-0.5 rounded text-xs font-medium ${SURGERY_BADGE_COLOR[patient.surgery_type]}`}>
-          {SURGERY_TYPE_LABELS[patient.surgery_type]}
+          {t(`surgery.${patient.surgery_type}`)}
         </span>
       </div>
 
@@ -124,7 +110,7 @@ export default function PatientCard({ patient }: { patient: Patient }) {
                 : 'bg-slate-100 text-slate-400'
             }`}
           >
-            {patient[doc.key] ? '✓' : '○'} {doc.label}
+            {patient[doc.key] ? '✓' : '○'} {t(doc.labelKey)}
           </span>
         ))}
       </div>
@@ -133,16 +119,16 @@ export default function PatientCard({ patient }: { patient: Patient }) {
       <div className="flex items-center justify-between text-xs text-slate-500">
         <span>
           {patient.payment_status === 'FULL' && (
-            <span className="text-green-600 font-medium">전액납부</span>
+            <span className="text-green-600 font-medium">{t('payment.full')}</span>
           )}
           {patient.payment_status === 'PARTIAL' && (
-            <span className="text-amber-600 font-medium">일부납부</span>
+            <span className="text-amber-600 font-medium">{t('payment.partial')}</span>
           )}
           {patient.payment_status === 'NONE' && (
-            <span className="text-red-500 font-medium">미납</span>
+            <span className="text-red-500 font-medium">{t('payment.none')}</span>
           )}
         </span>
-        <span className="text-slate-400">{EXCHANGE_LABEL[patient.exchange_method]}</span>
+        <span className="text-slate-400">{t(`exchange.${patient.exchange_method}`)}</span>
       </div>
 
       {/* Alert flags */}
@@ -150,10 +136,10 @@ export default function PatientCard({ patient }: { patient: Patient }) {
         <div className="flex flex-wrap gap-1 pt-0.5 border-t border-slate-100">
           {alerts.map((a) => (
             <span
-              key={a.msg}
+              key={a.msgKey}
               className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium text-white ${a.color}`}
             >
-              {a.msg}
+              {t(a.msgKey)}
             </span>
           ))}
         </div>

@@ -9,17 +9,19 @@ import {
   Calendar,
   ClipboardCheck,
 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 const NAV_ITEMS = [
-  { href: '/', label: '대시보드', icon: LayoutDashboard },
-  { href: '/pipeline', label: '환자 파이프라인', icon: Kanban },
-  { href: '/patients', label: '환자 목록', icon: Users },
-  { href: '/followups', label: '팔로업 관리', icon: ClipboardCheck },
-  { href: '/calendar', label: '수술 캘린더', icon: Calendar },
+  { href: '/', key: 'nav.dashboard', icon: LayoutDashboard },
+  { href: '/pipeline', key: 'nav.pipeline', icon: Kanban },
+  { href: '/patients', key: 'nav.patients', icon: Users },
+  { href: '/followups', key: 'nav.followups', icon: ClipboardCheck },
+  { href: '/calendar', key: 'nav.calendar', icon: Calendar },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
     <aside className="fixed top-0 left-0 z-30 h-full w-64 flex flex-col bg-slate-900">
@@ -36,7 +38,7 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
           const active = pathname === href;
           return (
             <Link
@@ -50,7 +52,7 @@ export default function Sidebar() {
               ].join(' ')}
             >
               <Icon size={18} className={active ? 'text-white' : 'text-slate-400'} />
-              {label}
+              {t(key)}
             </Link>
           );
         })}

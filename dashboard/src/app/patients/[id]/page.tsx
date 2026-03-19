@@ -12,10 +12,12 @@ import DocumentChecklist from '@/components/patients/DocumentChecklist';
 import PaymentHistory from '@/components/patients/PaymentHistory';
 import FollowupSchedule from '@/components/patients/FollowupSchedule';
 import { ArrowLeft } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 export default function PatientDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { t } = useLanguage();
   const id = params.id as string;
 
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -56,12 +58,12 @@ export default function PatientDetailPage() {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <p className="text-slate-500">환자를 찾을 수 없습니다.</p>
+          <p className="text-slate-500">{t('common.no_data')}</p>
           <button
             onClick={() => router.push('/patients')}
             className="text-sm text-blue-600 hover:underline"
           >
-            환자 목록으로 돌아가기
+            {t('patient.back_to_list')}
           </button>
         </div>
       </DashboardLayout>
@@ -85,7 +87,7 @@ export default function PatientDetailPage() {
           className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors"
         >
           <ArrowLeft size={16} />
-          환자 목록
+          {t('patient.back_to_list')}
         </button>
 
         {/* Patient info header */}

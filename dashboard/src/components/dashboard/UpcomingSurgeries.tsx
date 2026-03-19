@@ -1,4 +1,5 @@
 import { Patient, SURGERY_TYPE_LABELS } from '@/types/patient';
+import { useLanguage } from '@/lib/i18n';
 
 interface UpcomingSurgeriesProps {
   patients: Patient[];
@@ -16,6 +17,7 @@ function docCount(patient: Patient): number {
 }
 
 export default function UpcomingSurgeries({ patients, today }: UpcomingSurgeriesProps) {
+  const { t } = useLanguage();
   const todayMs = today.getTime();
 
   const upcoming = patients
@@ -28,9 +30,9 @@ export default function UpcomingSurgeries({ patients, today }: UpcomingSurgeries
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h2 className="text-base font-semibold text-gray-900 mb-4">다가오는 수술 (D-30 이내)</h2>
+      <h2 className="text-base font-semibold text-gray-900 mb-4">{t('dashboard.upcoming_surgeries')}</h2>
       {upcoming.length === 0 ? (
-        <p className="text-sm text-gray-400">예정된 수술이 없습니다.</p>
+        <p className="text-sm text-gray-400">{t('dashboard.no_upcoming_surgeries')}</p>
       ) : (
         <ul className="space-y-3">
           {upcoming.map((patient) => {
@@ -71,7 +73,7 @@ export default function UpcomingSurgeries({ patients, today }: UpcomingSurgeries
                       docs === 5 ? 'text-green-600' : 'text-red-500'
                     }`}
                   >
-                    서류 {docs}/5
+                    {t('dashboard.docs')} {docs}/5
                   </span>
                 </div>
               </li>
