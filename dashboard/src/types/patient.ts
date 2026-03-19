@@ -43,7 +43,20 @@ export interface Followup {
   completed: boolean;
   completed_at: string | null;
   notes: string;
+  precaution?: string;  // from FOLLOWUP_RULES
   created_at?: string;
+}
+
+export interface InterpreterSchedule {
+  schedule_id: string;
+  patient_id: string;
+  interpreter_id: string;
+  scheduled_date: string;
+  time_slot: string | null;
+  description: string;
+  description_ko: string | null;
+  interpreter?: Interpreter;
+  patient?: Patient;
 }
 
 export interface Alert {
@@ -65,25 +78,34 @@ export interface PipelineLog {
 }
 
 // Followup rules per surgery type (days after surgery_date)
-export const FOLLOWUP_RULES: Record<SurgeryType, { days: number; label: string; labelKo: string }[]> = {
+export const FOLLOWUP_RULES: Record<SurgeryType, { days: number; label: string; labelKo: string; precaution?: string; precautionKo?: string }[]> = {
   '2JAW_SSRO': [
-    { days: 7, label: 'PT Start (Jaw Exercise)', labelKo: '턱운동 시작 (물리치료)' },
-    { days: 21, label: 'Wafer Removal', labelKo: '웨이퍼 제거' },
-    { days: 28, label: 'Screw Removal', labelKo: '스크류 제거' },
+    { days: 1, label: 'Post-op Day 1 (Hospitalized)', labelKo: '수술 후 1일 (입원)', precaution: 'Keep airway tube in place. Do NOT remove. Watch for syncope/hyperventilation.', precautionKo: '기도 튜브 유지. 절대 제거 금지. 실신/과호흡 주의. 보호자+통역사 필수' },
+    { days: 2, label: 'Post-op Day 2 (Hospitalized)', labelKo: '수술 후 2일 (입원)', precaution: 'Stabilizing but swelling may trigger urgent events.', precautionKo: '안정화 단계이나 부종으로 긴급 상황 가능' },
+    { days: 3, label: 'Post-op Day 3 (Discharge)', labelKo: '수술 후 3일 (퇴원)', precaution: 'IMF (Jaw Fixation) setup + mandatory instructions. Delay discharge if IMF not set.', precautionKo: 'IMF(악간고정) 설정 + 필수 안내. IMF 미설정 시 퇴원 지연. 통역사 필수' },
+    { days: 7, label: 'PT Start (Jaw Exercise)', labelKo: '턱운동 시작 (물리치료)', precaution: 'Start physical therapy. Poor compliance → prolonged recovery or revision surgery.', precautionKo: '물리치료 시작. 미이행 시 회복 지연/재수술 가능. 통역사 필수' },
+    { days: 21, label: 'Wafer Removal', labelKo: '웨이퍼 제거', precaution: 'Wafer removal + CT comparison. Screws removed if orthodontic tx started.', precautionKo: '웨이퍼 제거 + CT 비교. 교정 시작 시 스크류 동시 제거. 통역사 필수' },
+    { days: 28, label: 'Screw Removal', labelKo: '스크류 제거', precaution: 'Screw removal for non-orthodontic patients. CT comparison.', precautionKo: '비교정 환자 스크류 제거. CT 비교. 통역사 필수' },
   ],
   '2JAW_IVRO': [
-    { days: 14, label: 'PT Start (Jaw Exercise)', labelKo: '턱운동 시작 (물리치료)' },
-    { days: 35, label: 'Wafer Removal', labelKo: '웨이퍼 제거' },
-    { days: 42, label: 'Screw Removal', labelKo: '스크류 제거' },
+    { days: 1, label: 'Post-op Day 1 (Hospitalized)', labelKo: '수술 후 1일 (입원)', precaution: 'Keep airway tube in place. Do NOT remove. Watch for syncope/hyperventilation.', precautionKo: '기도 튜브 유지. 절대 제거 금지. 실신/과호흡 주의. 보호자+통역사 필수' },
+    { days: 2, label: 'Post-op Day 2 (Hospitalized)', labelKo: '수술 후 2일 (입원)', precaution: 'Stabilizing but swelling may trigger urgent events.', precautionKo: '안정화 단계이나 부종으로 긴급 상황 가능' },
+    { days: 3, label: 'Post-op Day 3 (Discharge)', labelKo: '수술 후 3일 (퇴원)', precaution: 'IMF (Jaw Fixation) setup + mandatory instructions. Delay discharge if IMF not set.', precautionKo: 'IMF(악간고정) 설정 + 필수 안내. IMF 미설정 시 퇴원 지연. 통역사 필수' },
+    { days: 14, label: 'PT Start (Jaw Exercise)', labelKo: '턱운동 시작 (물리치료)', precaution: 'Start physical therapy. Poor compliance → prolonged recovery or revision surgery.', precautionKo: '물리치료 시작. 미이행 시 회복 지연/재수술 가능. 통역사 필수' },
+    { days: 35, label: 'Wafer Removal', labelKo: '웨이퍼 제거', precaution: 'Wafer removal + CT comparison. Screws removed if orthodontic tx started.', precautionKo: '웨이퍼 제거 + CT 비교. 교정 시작 시 스크류 동시 제거. 통역사 필수' },
+    { days: 42, label: 'Screw Removal', labelKo: '스크류 제거', precaution: 'Screw removal for non-orthodontic patients. CT comparison.', precautionKo: '비교정 환자 스크류 제거. CT 비교. 통역사 필수' },
   ],
   'VLINE': [
-    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크' },
+    { days: 1, label: 'Post-op Day 1', labelKo: '수술 후 1일', precaution: 'Monitor swelling and drainage.', precautionKo: '부종 및 배액 모니터링' },
+    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크', precaution: 'Post-op check and clearance for return.', precautionKo: '수술 후 체크 및 귀국 허가' },
   ],
   'CONTOURING': [
-    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크' },
+    { days: 1, label: 'Post-op Day 1', labelKo: '수술 후 1일', precaution: 'Monitor swelling and drainage.', precautionKo: '부종 및 배액 모니터링' },
+    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크', precaution: 'For zygoma patients: check plate integrity at 6-month follow-up.', precautionKo: '광대축소 환자: 6개월 후 플레이트 파손 여부 확인' },
   ],
   'ASO': [
-    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크' },
+    { days: 1, label: 'Post-op Day 1', labelKo: '수술 후 1일', precaution: 'Monitor recovery.', precautionKo: '회복 모니터링' },
+    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크', precaution: 'Post-op check and clearance for return.', precautionKo: '수술 후 체크 및 귀국 허가' },
   ],
 };
 

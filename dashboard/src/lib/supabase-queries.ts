@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Patient, Followup, Interpreter, PipelineStage, SurgeryType, FOLLOWUP_RULES } from '@/types/patient';
+import { Patient, Followup, Interpreter, InterpreterSchedule, PipelineStage, SurgeryType, FOLLOWUP_RULES } from '@/types/patient';
 
 // --- Patients ---
 
@@ -142,6 +142,27 @@ export async function getInterpreters(): Promise<Interpreter[]> {
     .order('name', { ascending: true });
   if (error) throw error;
   return data as Interpreter[];
+}
+
+// --- Interpreter Schedule ---
+
+export async function getInterpreterSchedule(patientId?: string): Promise<InterpreterSchedule[]> {
+  let query = supabase
+    .from('interpreter_schedule')
+    .select('*, interpreter:interpreters(*), patient:patients(patient_id, k_name, surgery_type, surgery_date)')
+    .order('scheduled_date', { ascending: true });
+
+  if (patientId) {
+    query = query.eq('patient_id', patientId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as InterpreterSchedule[];
+}
+
+export async function getAllInterpreterSchedules(): Promise<InterpreterSchedule[]> {
+  return getInterpreterSchedule();
 }
 
 // --- Helpers ---

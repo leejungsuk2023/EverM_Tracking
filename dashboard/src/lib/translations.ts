@@ -159,6 +159,18 @@ export const translations: Record<string, Record<string, string>> = {
   'workflow.timepoint': { en: 'Timepoint', ko: '시점' },
   'workflow.key_points': { en: 'Key Points', ko: '주요 사항' },
 
+  // Interpreter schedule
+  'interpreter.schedule': { en: 'Interpreter Schedule', ko: '통역사 스케줄' },
+  'interpreter.date': { en: 'Date', ko: '날짜' },
+  'interpreter.time': { en: 'Time', ko: '시간' },
+  'interpreter.name': { en: 'Interpreter', ko: '통역사' },
+  'interpreter.task': { en: 'Task', ko: '업무' },
+  'interpreter.no_schedule': { en: 'No interpreter schedule assigned', ko: '통역사 스케줄이 배정되지 않았습니다' },
+
+  // Followup precaution
+  'followup.precaution': { en: 'Precaution', ko: '주의사항' },
+  'followup.critical': { en: 'Critical Care', ko: '중요 관리' },
+
   // Dashboard (additional)
   'dashboard.pipeline_in_progress': { en: 'In pipeline', ko: '파이프라인 진행 중' },
   'dashboard.doc_check_needed': { en: 'Doc check needed', ko: '서류 확인 필요 환자' },

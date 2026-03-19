@@ -10,6 +10,7 @@ import PatientTimeline from '@/components/patients/PatientTimeline';
 import DocumentChecklist from '@/components/patients/DocumentChecklist';
 import PaymentHistory from '@/components/patients/PaymentHistory';
 import FollowupSchedule from '@/components/patients/FollowupSchedule';
+import InterpreterScheduleView from '@/components/patients/InterpreterScheduleView';
 import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
@@ -101,9 +102,13 @@ export default function PatientDetailPage() {
           <FollowupSchedule
             followups={followups}
             surgeryDate={patient.surgery_date}
+            surgeryType={patient.surgery_type}
             onUpdate={handleFollowupsUpdate}
           />
         </div>
+
+        {/* Interpreter Schedule */}
+        <InterpreterScheduleView patientId={patient.patient_id} />
       </div>
     </DashboardLayout>
   );

@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getAllFollowups, toggleFollowupComplete } from '@/lib/supabase-queries';
-import { Followup, Patient, SURGERY_TYPE_LABELS } from '@/types/patient';
-import { ClipboardCheck, Calendar, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Followup, Patient, SURGERY_TYPE_LABELS, FOLLOWUP_RULES, SurgeryType } from '@/types/patient';
+import { ClipboardCheck, Calendar, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
 type FollowupWithPatient = Followup & { patient: Patient };
@@ -40,13 +40,28 @@ function isThisWeek(followup: FollowupWithPatient, today: string, weekEnd: strin
   return followup.scheduled_date >= today && followup.scheduled_date <= weekEnd;
 }
 
+function getPrecaution(surgeryType: SurgeryType, surgeryDate: string, scheduledDate: string, lang: string): string | undefined {
+  const rules = FOLLOWUP_RULES[surgeryType];
+  const surgery = new Date(surgeryDate);
+  const scheduled = new Date(scheduledDate);
+  const diff = Math.round((scheduled.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
+  const rule = rules.find((r) => r.days === diff);
+  if (!rule) return undefined;
+  return lang === 'ko' ? rule.precautionKo : rule.precaution;
+}
+
 export default function FollowupsPage() {
   const [followups, setFollowups] = useState<FollowupWithPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const [memoEdits, setMemoEdits] = useState<Record<string, string>>({});
+  const [expandedPrecautions, setExpandedPrecautions] = useState<Record<string, boolean>>({});
 
-  const { t } = useLanguage();
+  function togglePrecaution(id: string) {
+    setExpandedPrecautions(prev => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  const { t, lang } = useLanguage();
   const today = getToday();
   const weekEnd = getWeekEnd();
 
@@ -220,6 +235,7 @@ export default function FollowupsPage() {
                   <th className="px-4 py-3 text-center">{t('followup.fu_number')}</th>
                   <th className="px-4 py-3 text-left">{t('followup.scheduled')}</th>
                   <th className="px-4 py-3 text-center">D+X</th>
+                  <th className="px-4 py-3 text-left">{t('followup.precaution')}</th>
                   <th className="px-4 py-3 text-center">{t('followup.status')}</th>
                   <th className="px-4 py-3 text-left">{t('followup.memo')}</th>
                 </tr>
@@ -227,10 +243,22 @@ export default function FollowupsPage() {
               <tbody className="divide-y divide-gray-50">
                 {filteredFollowups.map((followup) => {
                   const overdue = isOverdue(followup, today);
+                  const precaution = getPrecaution(
+                    followup.patient.surgery_type,
+                    followup.patient.surgery_date,
+                    followup.scheduled_date,
+                    lang
+                  );
+                  const surgery = new Date(followup.patient.surgery_date);
+                  const scheduled = new Date(followup.scheduled_date);
+                  const daysDiff = Math.round((scheduled.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
+                  const isCritical = daysDiff >= 1 && daysDiff <= 3;
                   const rowClass = followup.completed
                     ? 'bg-green-50'
                     : overdue
                     ? 'bg-red-50'
+                    : precaution
+                    ? 'bg-amber-50'
                     : 'bg-white';
 
                   return (
@@ -267,6 +295,36 @@ export default function FollowupsPage() {
                       {/* D+X */}
                       <td className="px-4 py-3 text-center text-gray-500">
                         {calcDaysAfterSurgery(followup.patient.surgery_date, followup.scheduled_date)}
+                      </td>
+
+                      {/* 주의사항 */}
+                      <td className="px-4 py-3 max-w-[200px]">
+                        {precaution ? (
+                          <div>
+                            <button
+                              onClick={() => togglePrecaution(followup.followup_id)}
+                              className={`flex items-center gap-1 text-xs font-medium ${
+                                isCritical ? 'text-red-600' : 'text-amber-600'
+                              }`}
+                            >
+                              <AlertTriangle size={12} className="flex-shrink-0" />
+                              <span className="truncate max-w-[160px]">
+                                {expandedPrecautions[followup.followup_id]
+                                  ? t('followup.precaution')
+                                  : precaution.slice(0, 40) + (precaution.length > 40 ? '…' : '')}
+                              </span>
+                            </button>
+                            {expandedPrecautions[followup.followup_id] && (
+                              <p className={`mt-1 text-xs leading-relaxed ${
+                                isCritical ? 'text-red-600' : 'text-amber-700'
+                              }`}>
+                                {precaution}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-300">-</span>
+                        )}
                       </td>
 
                       {/* 상태 체크박스 + 뱃지 */}

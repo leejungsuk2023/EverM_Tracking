@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Followup } from '@/types/patient';
+import { Followup, SurgeryType, FOLLOWUP_RULES } from '@/types/patient';
 import { toggleFollowupComplete } from '@/lib/supabase-queries';
-import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
 interface FollowupScheduleProps {
   followups: Followup[];
   surgeryDate: string;
+  surgeryType?: SurgeryType;
   onUpdate: (updated: Followup[]) => void;
 }
 
@@ -18,8 +19,21 @@ function getDaysDiff(surgeryDate: string, followupDate: string): number {
   return Math.round((followup.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: FollowupScheduleProps) {
-  const { t } = useLanguage();
+function getPrecaution(
+  surgeryType: SurgeryType | undefined,
+  daysDiff: number,
+  lang: string
+): string | undefined {
+  if (!surgeryType) return undefined;
+  const rules = FOLLOWUP_RULES[surgeryType];
+  const rule = rules.find((r) => r.days === daysDiff);
+  if (!rule) return undefined;
+  if (lang === 'ko') return rule.precautionKo;
+  return rule.precaution;
+}
+
+export default function FollowupSchedule({ followups, surgeryDate, surgeryType, onUpdate }: FollowupScheduleProps) {
+  const { t, lang } = useLanguage();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -29,6 +43,11 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
     followups.forEach(f => { init[f.followup_id] = f.notes ?? ''; });
     return init;
   });
+  const [expandedPrecautions, setExpandedPrecautions] = useState<Record<string, boolean>>({});
+
+  function togglePrecaution(id: string) {
+    setExpandedPrecautions(prev => ({ ...prev, [id]: !prev[id] }));
+  }
 
   async function handleToggleComplete(followup: Followup) {
     setToggling(followup.followup_id);
@@ -75,6 +94,9 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
             const daysDiff = getDaysDiff(surgeryDate, followup.scheduled_date);
             const dLabel = daysDiff >= 0 ? `D+${daysDiff}` : `D${daysDiff}`;
             const isToggling = toggling === followup.followup_id;
+            const isCritical = daysDiff >= 1 && daysDiff <= 3;
+            const precaution = getPrecaution(surgeryType, daysDiff, lang);
+            const isPrecautionExpanded = expandedPrecautions[followup.followup_id] ?? false;
 
             const statusLabel = followup.completed
               ? t('followup.completed')
@@ -82,12 +104,18 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
               ? t('followup.overdue_badge')
               : t('followup.scheduled');
 
+            const cardClass = followup.completed
+              ? 'border-green-200 bg-green-50'
+              : isOverdue
+              ? 'border-red-200 bg-red-50'
+              : precaution
+              ? 'border-amber-200 bg-amber-50'
+              : 'border-slate-100 bg-slate-50';
+
             return (
               <div
                 key={followup.followup_id}
-                className={`rounded-lg p-3 border transition-colors ${
-                  isOverdue ? 'border-red-200 bg-red-50' : 'border-slate-100 bg-slate-50'
-                }`}
+                className={`rounded-lg p-3 border transition-colors ${cardClass}`}
               >
                 <div className="flex items-center gap-3">
                   <button
@@ -106,28 +134,61 @@ export default function FollowupSchedule({ followups, surgeryDate, onUpdate }: F
                     )}
                   </button>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${isOverdue ? 'text-red-700' : 'text-slate-700'}`}>
-                      {followup.followup_number}{t('followup.fu_number')}
-                      <span className="ml-2 text-xs font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                        {dLabel}
-                      </span>
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className={`text-sm font-medium ${isOverdue ? 'text-red-700' : 'text-slate-700'}`}>
+                        {followup.followup_number}{t('followup.fu_number')}
+                        <span className="ml-2 text-xs font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                          {dLabel}
+                        </span>
+                      </p>
+                      {isCritical && precaution && (
+                        <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold">
+                          {t('followup.critical')}
+                        </span>
+                      )}
+                    </div>
                     <p className={`text-xs ${isOverdue ? 'text-red-400' : 'text-slate-400'}`}>
                       {followup.scheduled_date}
                     </p>
                   </div>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${
-                      followup.completed
-                        ? 'bg-green-100 text-green-700'
-                        : isOverdue
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-slate-100 text-slate-500'
-                    }`}
-                  >
-                    {statusLabel}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {precaution && (
+                      <button
+                        onClick={() => togglePrecaution(followup.followup_id)}
+                        className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded transition-colors ${
+                          isCritical
+                            ? 'text-red-500 hover:bg-red-100'
+                            : 'text-amber-600 hover:bg-amber-100'
+                        }`}
+                        title={t('followup.precaution')}
+                      >
+                        <AlertTriangle size={13} />
+                      </button>
+                    )}
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        followup.completed
+                          ? 'bg-green-100 text-green-700'
+                          : isOverdue
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {statusLabel}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Precaution text (collapsible) */}
+                {precaution && isPrecautionExpanded && (
+                  <div className={`mt-2 pl-8 pr-2 py-1.5 rounded text-xs leading-relaxed ${
+                    isCritical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    <span className="font-semibold">{t('followup.precaution')}: </span>
+                    {precaution}
+                  </div>
+                )}
+
                 {/* Memo input */}
                 <div className="mt-2 pl-8">
                   <input
