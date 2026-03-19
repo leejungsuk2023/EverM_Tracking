@@ -246,56 +246,85 @@ async function syncInterpreterAssignments(): Promise<InterpreterSyncResult> {
     interpreterMap.set(i.name.trim(), i.interpreter_id);
   }
 
-  // Find "수술 진행" rows — these determine the surgery-day interpreter
-  // Key: patient nickname (lowercase) → interpreter name
+  // Step 1: Delete existing interpreter_schedule for patients in this sheet
+  const patientsInSheet = new Set<string>();
+  for (const row of dataRows) {
+    const nickname = (row[0] || '').trim().toLowerCase();
+    if (!nickname) continue;
+    const pid = patientMap.get(nickname) ?? patientMap.get(`k.${nickname}`);
+    if (pid) patientsInSheet.add(pid);
+  }
+
+  for (const pid of patientsInSheet) {
+    await supabase.from('interpreter_schedule').delete().eq('patient_id', pid);
+  }
+
+  // Step 2: Insert all rows into interpreter_schedule + set surgery-day interpreter on patients
+  let assigned = 0;
+  let skipped = 0;
   const surgeryInterpreterMap = new Map<string, string>();
 
   for (const row of dataRows) {
-    const [patientNickname, , , interpreterName, scheduleName] = row;
+    const [patientNickname, dateRaw, timeRaw, interpreterName, descriptionRaw, description2Raw] = row;
 
-    if (!patientNickname || !interpreterName || !scheduleName) continue;
-
-    const scheduleNorm = scheduleName.trim();
-    // Match rows that indicate surgery day
-    if (scheduleNorm.includes('수술 진행') || scheduleNorm.includes('수술진행')) {
-      const nicknameKey = patientNickname.trim().toLowerCase();
-      surgeryInterpreterMap.set(nicknameKey, interpreterName.trim());
+    if (!patientNickname || !descriptionRaw) {
+      skipped++;
+      continue;
     }
-  }
 
-  let assigned = 0;
-  let skipped = 0;
-
-  for (const [nicknameKey, interpreterName] of surgeryInterpreterMap.entries()) {
+    const nicknameKey = patientNickname.trim().toLowerCase();
     const patientId = patientMap.get(nicknameKey) ?? patientMap.get(`k.${nicknameKey}`);
-    const interpreterId = interpreterMap.get(interpreterName);
-
     if (!patientId) {
-      console.warn(`Patient not found for nickname: "${nicknameKey}"`);
+      console.warn(`Patient not found: "${nicknameKey}"`);
       skipped++;
       continue;
     }
 
-    if (!interpreterId) {
-      console.warn(`Interpreter not found: "${interpreterName}"`);
+    const interpreterNameTrimmed = (interpreterName || '').trim();
+    const interpreterId = interpreterNameTrimmed ? interpreterMap.get(interpreterNameTrimmed) : null;
+
+    // Parse date: "2026. 3. 20" → "2026-03-20"
+    const scheduledDate = parseSurgeryDate(dateRaw || '');
+    if (!scheduledDate) {
       skipped++;
       continue;
     }
 
-    const { error } = await supabase
-      .from('patients')
-      .update({
-        interpreter_id: interpreterId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('patient_id', patientId);
+    const description = descriptionRaw.trim();
+    const description2 = (description2Raw || '').trim();
+    const fullDescription = description2 ? `${description} (${description2})` : description;
+
+    // Insert into interpreter_schedule
+    const { error } = await supabase.from('interpreter_schedule').insert({
+      patient_id: patientId,
+      interpreter_id: interpreterId,
+      scheduled_date: scheduledDate,
+      time_slot: (timeRaw || '').trim() || null,
+      description: fullDescription,
+      description_ko: fullDescription,
+    });
 
     if (error) {
-      console.error(`Assign interpreter failed for ${nicknameKey}:`, error.message);
+      console.error(`Insert schedule failed for ${nicknameKey} ${scheduledDate}:`, error.message);
       skipped++;
     } else {
       assigned++;
     }
+
+    // Track surgery-day interpreter for patients.interpreter_id
+    if (description.includes('수술 진행') || description.includes('수술진행')) {
+      if (interpreterId) {
+        surgeryInterpreterMap.set(patientId, interpreterId);
+      }
+    }
+  }
+
+  // Step 3: Update patients.interpreter_id with surgery-day interpreter
+  for (const [patientId, interpreterId] of surgeryInterpreterMap.entries()) {
+    await supabase
+      .from('patients')
+      .update({ interpreter_id: interpreterId, updated_at: new Date().toISOString() })
+      .eq('patient_id', patientId);
   }
 
   return { assigned, skipped };
