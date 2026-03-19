@@ -10,6 +10,7 @@ const PAGE_TITLE_KEYS: Record<string, string> = {
   '/patients': 'patients.title',
   '/calendar': 'calendar.title',
   '/followups': 'followup.title',
+  '/workflow': 'nav.workflow',
 };
 
 export default function Header() {

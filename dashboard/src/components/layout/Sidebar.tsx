@@ -8,6 +8,7 @@ import {
   Users,
   Calendar,
   ClipboardCheck,
+  BookOpen,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { href: '/patients', key: 'nav.patients', icon: Users },
   { href: '/followups', key: 'nav.followups', icon: ClipboardCheck },
   { href: '/calendar', key: 'nav.calendar', icon: Calendar },
+  { href: '/workflow', key: 'nav.workflow', icon: BookOpen },
 ];
 
 export default function Sidebar() {

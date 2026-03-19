@@ -5,6 +5,7 @@ export const translations: Record<string, Record<string, string>> = {
   'nav.patients': { en: 'Patient List', ko: '환자 목록' },
   'nav.followups': { en: 'Follow-up Management', ko: '팔로업 관리' },
   'nav.calendar': { en: 'Surgery Calendar', ko: '수술 캘린더' },
+  'nav.workflow': { en: 'Workflow Guide', ko: '워크플로우 가이드' },
 
   // Header
   'header.notifications': { en: 'Notifications', ko: '알림' },
