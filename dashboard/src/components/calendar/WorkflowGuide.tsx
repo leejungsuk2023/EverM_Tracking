@@ -86,7 +86,7 @@ export default function WorkflowGuide() {
                   {t('workflow.key_points')}
                 </th>
                 <th className="text-center px-4 py-2.5 text-xs font-semibold text-gray-500 w-32">
-                  {t('workflow.interpreter_required')}
+                  {t('calendar.interpreter')}
                 </th>
               </tr>
             </thead>
@@ -110,7 +110,7 @@ export default function WorkflowGuide() {
                       </span>
                     ) : (
                       <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-400">
-                        {t('workflow.not_required')}
+                        {t('workflow.as_needed')}
                       </span>
                     )}
                   </td>

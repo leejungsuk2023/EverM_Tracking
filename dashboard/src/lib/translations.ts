@@ -148,9 +148,10 @@ export const translations: Record<string, Record<string, string>> = {
 
   // Workflow guide
   'workflow.title': { en: 'Workflow Guide', ko: '워크플로우 가이드' },
-  'workflow.current_practice': { en: 'Current Practice', ko: '현재 워크플로우' },
+  'workflow.current_practice': { en: 'Current Practice', ko: '현재 프로세스' },
   'workflow.postop_precautions': { en: 'Post-op Precautions', ko: '수술 후 주의사항' },
-  'workflow.interpreter_required': { en: 'Interpreter Required', ko: '통역사 필요' },
+  'workflow.interpreter_required': { en: 'Required', ko: '필수' },
+  'workflow.as_needed': { en: 'As needed', ko: '필요시' },
   'workflow.not_required': { en: 'Not Required', ko: '불필요' },
   'workflow.select_surgery': { en: 'Select Surgery Type', ko: '수술 유형 선택' },
   'workflow.ivro_vs_ssro': { en: 'IVRO vs SSRO Comparison', ko: 'IVRO vs SSRO 비교' },
