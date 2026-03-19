@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { mockPatients } from '@/data/mock-patients';
 import { Patient, PIPELINE_STAGES } from '@/types/patient';
 import { getPatients } from '@/lib/supabase-queries';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -22,7 +21,7 @@ export default function PatientsPage() {
         const data = await getPatients();
         setPatients(data);
       } catch {
-        setPatients(mockPatients);
+        setPatients([]);
       } finally {
         setLoading(false);
       }

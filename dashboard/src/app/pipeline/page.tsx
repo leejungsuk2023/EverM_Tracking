@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Patient } from '@/types/patient';
 import { getPatients } from '@/lib/supabase-queries';
-import { mockPatients } from '@/data/mock-patients';
 import KanbanBoard from '@/components/pipeline/KanbanBoard';
 import { useLanguage } from '@/lib/i18n';
 
@@ -22,8 +21,8 @@ export default function PipelinePage() {
     getPatients()
       .then(setPatients)
       .catch((err) => {
-        setError((err.message ?? t('common.error')) + ' (목업 데이터로 표시 중)');
-        setPatients(mockPatients);
+        setError(err.message ?? t('common.error'));
+        setPatients([]);
       })
       .finally(() => setLoading(false));
   }, []);

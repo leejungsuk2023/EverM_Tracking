@@ -13,7 +13,6 @@ interface KanbanColumnProps {
 
 function getColumnAccent(stage: PipelineStage): string {
   const map: Partial<Record<PipelineStage, string>> = {
-    CONSULTATION: 'border-slate-400',
     BOOKING: 'border-blue-400',
     DOCUMENT_COLLECTION: 'border-indigo-400',
     PREOP_PREP: 'border-violet-400',

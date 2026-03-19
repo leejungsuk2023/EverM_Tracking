@@ -6,7 +6,7 @@ interface PipelineSummaryProps {
 }
 
 function getBarColor(stage: PipelineStage): string {
-  const earlyStages: PipelineStage[] = ['CONSULTATION', 'BOOKING', 'DOCUMENT_COLLECTION', 'PREOP_PREP'];
+  const earlyStages: PipelineStage[] = ['BOOKING', 'DOCUMENT_COLLECTION', 'PREOP_PREP'];
   const surgeryStages: PipelineStage[] = ['ARRIVAL_HEALTH_CHECK', 'SURGERY', 'HOSPITALIZATION', 'DISCHARGE'];
   const followupStages: PipelineStage[] = ['FOLLOWUP_1', 'FOLLOWUP_2', 'FOLLOWUP_3'];
   const completeStages: PipelineStage[] = ['COMPLETE'];

@@ -94,10 +94,10 @@ export async function generateFollowups(
   surgeryDate: string
 ): Promise<void> {
   const rules = FOLLOWUP_RULES[surgeryType];
-  const rows = rules.map((daysOffset, index) => ({
+  const rows = rules.map((r, index) => ({
     patient_id: patientId,
     followup_number: index + 1,
-    scheduled_date: addDays(surgeryDate, daysOffset),
+    scheduled_date: addDays(surgeryDate, r.days),
     completed: false,
   }));
 

@@ -1,7 +1,5 @@
 'use client';
 
-import { Activity, ActivityType } from '@/data/mock-activities';
-import { useLanguage } from '@/lib/i18n';
 import {
   ArrowRightLeft,
   FileCheck,
@@ -11,6 +9,23 @@ import {
   LogOut,
   CalendarCheck,
 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
+
+type ActivityType =
+  | 'STAGE_CHANGE'
+  | 'DOCUMENT_SUBMITTED'
+  | 'PAYMENT_RECEIVED'
+  | 'NOTE_ADDED'
+  | 'SURGERY_COMPLETED'
+  | 'DISCHARGE'
+  | 'FOLLOWUP_SCHEDULED';
+
+interface Activity {
+  id: string;
+  type: ActivityType;
+  message: string;
+  timestamp: string;
+}
 
 interface RecentActivityProps {
   activities: Activity[];

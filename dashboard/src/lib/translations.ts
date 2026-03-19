@@ -99,6 +99,8 @@ export const translations: Record<string, Record<string, string>> = {
   'calendar.interpreter': { en: 'Interpreter', ko: '통역사' },
   'calendar.conflict': { en: 'Schedule conflict!', ko: '일정 충돌!' },
   'calendar.no_events': { en: 'No events', ko: '일정 없음' },
+  'calendar.tab_calendar': { en: 'Calendar', ko: '캘린더' },
+  'calendar.tab_workflow': { en: 'Workflow Guide', ko: '워크플로우 가이드' },
 
   // Followup page
   'followup.title': { en: 'Follow-up Management', ko: '팔로업 관리' },
@@ -143,6 +145,17 @@ export const translations: Record<string, Record<string, string>> = {
 
   // Currency
   'currency.man_won': { en: '만원', ko: '만원' },
+
+  // Workflow guide
+  'workflow.title': { en: 'Workflow Guide', ko: '워크플로우 가이드' },
+  'workflow.current_practice': { en: 'Current Practice', ko: '현재 워크플로우' },
+  'workflow.postop_precautions': { en: 'Post-op Precautions', ko: '수술 후 주의사항' },
+  'workflow.interpreter_required': { en: 'Interpreter Required', ko: '통역사 필요' },
+  'workflow.not_required': { en: 'Not Required', ko: '불필요' },
+  'workflow.select_surgery': { en: 'Select Surgery Type', ko: '수술 유형 선택' },
+  'workflow.ivro_vs_ssro': { en: 'IVRO vs SSRO Comparison', ko: 'IVRO vs SSRO 비교' },
+  'workflow.timepoint': { en: 'Timepoint', ko: '시점' },
+  'workflow.key_points': { en: 'Key Points', ko: '주요 사항' },
 
   // Dashboard (additional)
   'dashboard.pipeline_in_progress': { en: 'In pipeline', ko: '파이프라인 진행 중' },

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { mockPatients } from '@/data/mock-patients';
 import { Patient, Followup } from '@/types/patient';
 import { getPatientById, getFollowups } from '@/lib/supabase-queries';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -34,8 +33,7 @@ export default function PatientDetailPage() {
         setPatient(patientData);
         setFollowups(followupsData);
       } catch {
-        const fallback = mockPatients.find(p => p.patient_id === id) ?? null;
-        setPatient(fallback);
+        setPatient(null);
         setFollowups([]);
       } finally {
         setLoading(false);

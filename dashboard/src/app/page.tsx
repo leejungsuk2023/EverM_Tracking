@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { mockPatients } from '@/data/mock-patients';
-import { mockActivities } from '@/data/mock-activities';
 import { getPatients, getAllFollowups } from '@/lib/supabase-queries';
 import { Patient } from '@/types/patient';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -38,7 +36,7 @@ function getDocIncompleteCount(patients: Patient[]): number {
 
 export default function Home() {
   const { t } = useLanguage();
-  const [patients, setPatients] = useState<Patient[]>(mockPatients);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [todayFollowupCount, setTodayFollowupCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +53,7 @@ export default function Home() {
         ).length;
         setTodayFollowupCount(todayCount);
       } catch {
-        // fallback: keep mockPatients, count 0
+        // fallback: empty data
         setTodayFollowupCount(0);
       } finally {
         setLoading(false);
@@ -115,7 +113,7 @@ export default function Home() {
         </div>
 
         {/* Bottom: RecentActivity */}
-        <RecentActivity activities={mockActivities} />
+        <RecentActivity activities={[]} />
       </div>
     </DashboardLayout>
   );

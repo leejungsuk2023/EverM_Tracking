@@ -1,5 +1,5 @@
 export type SurgeryType = '2JAW_SSRO' | '2JAW_IVRO' | 'VLINE' | 'CONTOURING' | 'ASO';
-export type PipelineStage = 'CONSULTATION' | 'BOOKING' | 'DOCUMENT_COLLECTION' | 'PREOP_PREP' | 'ARRIVAL_HEALTH_CHECK' | 'SURGERY' | 'HOSPITALIZATION' | 'DISCHARGE' | 'FOLLOWUP_1' | 'FOLLOWUP_2' | 'FOLLOWUP_3' | 'COMPLETE';
+export type PipelineStage = 'BOOKING' | 'DOCUMENT_COLLECTION' | 'PREOP_PREP' | 'ARRIVAL_HEALTH_CHECK' | 'SURGERY' | 'HOSPITALIZATION' | 'DISCHARGE' | 'FOLLOWUP_1' | 'FOLLOWUP_2' | 'FOLLOWUP_3' | 'COMPLETE';
 export type PaymentStatus = 'NONE' | 'PARTIAL' | 'FULL';
 export type ExchangeMethod = 'SELF' | 'TEAM_ARRANGED' | 'CARD_PLUS_10PCT';
 
@@ -65,17 +65,30 @@ export interface PipelineLog {
 }
 
 // Followup rules per surgery type (days after surgery_date)
-export const FOLLOWUP_RULES: Record<SurgeryType, number[]> = {
-  '2JAW_SSRO': [7, 21, 28],
-  '2JAW_IVRO': [10, 21, 28],
-  'VLINE': [7, 14],
-  'CONTOURING': [7, 14],
-  'ASO': [7, 21, 28],
+export const FOLLOWUP_RULES: Record<SurgeryType, { days: number; label: string; labelKo: string }[]> = {
+  '2JAW_SSRO': [
+    { days: 7, label: 'PT Start (Jaw Exercise)', labelKo: '턱운동 시작 (물리치료)' },
+    { days: 21, label: 'Wafer Removal', labelKo: '웨이퍼 제거' },
+    { days: 28, label: 'Screw Removal', labelKo: '스크류 제거' },
+  ],
+  '2JAW_IVRO': [
+    { days: 14, label: 'PT Start (Jaw Exercise)', labelKo: '턱운동 시작 (물리치료)' },
+    { days: 35, label: 'Wafer Removal', labelKo: '웨이퍼 제거' },
+    { days: 42, label: 'Screw Removal', labelKo: '스크류 제거' },
+  ],
+  'VLINE': [
+    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크' },
+  ],
+  'CONTOURING': [
+    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크' },
+  ],
+  'ASO': [
+    { days: 7, label: '1-Week Post-op Check', labelKo: '1주 후 체크' },
+  ],
 };
 
 // Pipeline stage metadata
 export const PIPELINE_STAGES: { key: PipelineStage; label: string; labelKo: string; timeline: string }[] = [
-  { key: 'CONSULTATION', label: 'Consultation', labelKo: '상담', timeline: 'D-60~30' },
   { key: 'BOOKING', label: 'Booking', labelKo: '예약 확정', timeline: 'D-30~14' },
   { key: 'DOCUMENT_COLLECTION', label: 'Document Collection', labelKo: '서류 수집', timeline: 'D-14~3' },
   { key: 'PREOP_PREP', label: 'Pre-op Prep', labelKo: '수술 전 준비', timeline: 'D-7~2' },

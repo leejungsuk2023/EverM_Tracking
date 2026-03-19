@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import SurgeryCalendar from '@/components/calendar/SurgeryCalendar';
+import WorkflowGuide from '@/components/calendar/WorkflowGuide';
 import { Patient, Followup } from '@/types/patient';
 import { getPatients, getAllFollowups } from '@/lib/supabase-queries';
-import { mockPatients } from '@/data/mock-patients';
 import { useLanguage } from '@/lib/i18n';
+
+type TabKey = 'calendar' | 'workflow';
 
 export default function CalendarPage() {
   const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState<TabKey>('calendar');
   const [patients, setPatients] = useState<Patient[]>([]);
   const [followups, setFollowups] = useState<(Followup & { patient: Patient })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,8 +26,8 @@ export default function CalendarPage() {
         setPatients(patientsData);
         setFollowups(followupsData);
       } catch (err) {
-        console.error('Supabase fetch failed, using mock data:', err);
-        setPatients(mockPatients);
+        console.error('Supabase fetch failed:', err);
+        setPatients([]);
         setFollowups([]);
       } finally {
         setLoading(false);
@@ -39,12 +42,38 @@ export default function CalendarPage() {
         <h1 className="text-xl font-bold text-gray-900">{t('calendar.title')}</h1>
         <p className="text-sm text-gray-500 mt-0.5">{t('calendar.subtitle')}</p>
       </div>
-      {loading ? (
-        <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-          {t('common.loading')}
-        </div>
+
+      {/* Tab buttons */}
+      <div className="flex gap-1 border-b border-gray-200">
+        {([
+          { key: 'calendar', label: t('calendar.tab_calendar') },
+          { key: 'workflow', label: t('calendar.tab_workflow') },
+        ] as { key: TabKey; label: string }[]).map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`px-4 py-2 text-sm transition-colors border-b-2 -mb-px ${
+              activeTab === tab.key
+                ? 'border-blue-600 text-blue-700 font-bold'
+                : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      {activeTab === 'calendar' ? (
+        loading ? (
+          <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
+            {t('common.loading')}
+          </div>
+        ) : (
+          <SurgeryCalendar patients={patients} followups={followups} />
+        )
       ) : (
-        <SurgeryCalendar patients={patients} followups={followups} />
+        <WorkflowGuide />
       )}
     </div>
   );
