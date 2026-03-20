@@ -188,7 +188,8 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
               key={p.patient_id}
               className={`text-[10px] font-medium px-1 py-0.5 rounded truncate ${SURGERY_TYPE_COLORS[p.surgery_type]}`}
             >
-              {p.k_name} · {SURGERY_TYPE_LABELS[p.surgery_type]}
+              <span className="hidden sm:inline">{p.k_name} · </span>
+              {SURGERY_TYPE_LABELS[p.surgery_type]}
             </div>
           ))}
           {dayFollowups.map((fu) => (
@@ -200,7 +201,7 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
                   : 'bg-gray-100 text-gray-500'
               }`}
             >
-              F/U #{fu.followup_number} {fu.patient.k_name}
+              F/U #{fu.followup_number}<span className="hidden sm:inline"> {fu.patient.k_name}</span>
             </div>
           ))}
         </div>
@@ -211,22 +212,22 @@ export default function SurgeryCalendar({ patients, followups }: SurgeryCalendar
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Header: navigation + view toggle */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100">
         <div className="flex items-center gap-2">
           <button
             onClick={viewMode === 'month' ? goToPrevMonth : goToPrevWeek}
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+            className="p-2.5 sm:p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
           >
             <ChevronLeft size={18} />
           </button>
-          <h2 className="text-base font-semibold text-gray-900 min-w-[180px] text-center">
+          <h2 className="text-sm sm:text-base font-semibold text-gray-900 min-w-[120px] sm:min-w-[180px] text-center">
             {viewMode === 'month'
               ? new Date(currentYear, currentMonth, 1).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })
               : weekLabel}
           </h2>
           <button
             onClick={viewMode === 'month' ? goToNextMonth : goToNextWeek}
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+            className="p-2.5 sm:p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
           >
             <ChevronRight size={18} />
           </button>

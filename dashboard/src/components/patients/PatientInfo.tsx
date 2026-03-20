@@ -49,7 +49,7 @@ export default function PatientInfo({ patient, onUpdate }: PatientInfoProps) {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex items-center gap-2 text-sm">
           <Globe size={16} className="text-slate-400" />
           <div>

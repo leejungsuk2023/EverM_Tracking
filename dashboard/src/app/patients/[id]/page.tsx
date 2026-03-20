@@ -90,7 +90,7 @@ export default function PatientDetailPage() {
         <PatientTimeline patient={patient} />
 
         {/* Bottom grid */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
           <DocumentChecklist patient={patient} onUpdate={handlePatientUpdate} />
           <PaymentHistory patient={patient} />
           <FollowupSchedule

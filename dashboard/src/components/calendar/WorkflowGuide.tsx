@@ -27,7 +27,7 @@ export default function WorkflowGuide() {
       {/* Surgery type selector */}
       <div>
         <p className="text-xs text-gray-500 mb-2">{t('workflow.select_surgery')}</p>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 overflow-x-auto flex-nowrap sm:flex-wrap pb-1">
           {SURGERY_TABS.map((tab) => (
             <button
               key={tab.key}

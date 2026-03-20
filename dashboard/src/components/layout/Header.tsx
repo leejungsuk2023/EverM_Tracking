@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Bell, Globe } from 'lucide-react';
+import { Bell, Globe, Menu } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
 const PAGE_TITLE_KEYS: Record<string, string> = {
@@ -13,7 +13,11 @@ const PAGE_TITLE_KEYS: Record<string, string> = {
   '/workflow': 'nav.workflow',
 };
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const { lang, setLang, t } = useLanguage();
 
@@ -22,7 +26,16 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between h-14 px-6 bg-white border-b border-slate-200">
-      <h1 className="text-base font-semibold text-slate-800">{title}</h1>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden p-1.5 rounded-md text-slate-500 hover:bg-slate-100"
+          aria-label="Open sidebar"
+        >
+          <Menu size={20} />
+        </button>
+        <h1 className="text-base font-semibold text-slate-800">{title}</h1>
+      </div>
 
       {/* Right: language toggle + notification bell + user avatar */}
       <div className="flex items-center gap-2">

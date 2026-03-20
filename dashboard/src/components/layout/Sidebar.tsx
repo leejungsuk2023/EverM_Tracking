@@ -9,6 +9,7 @@ import {
   Calendar,
   ClipboardCheck,
   BookOpen,
+  X,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 
@@ -21,21 +22,33 @@ const NAV_ITEMS = [
   { href: '/workflow', key: 'nav.workflow', icon: BookOpen },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { t } = useLanguage();
 
-  return (
-    <aside className="fixed top-0 left-0 z-30 h-full w-64 flex flex-col bg-slate-900">
+  const sidebarContent = (
+    <aside className="h-full w-64 flex flex-col bg-slate-900">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-700">
         <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
           <span className="text-white text-xs font-bold">EM</span>
         </div>
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-bold text-white leading-tight">EverM Clinic</p>
           <p className="text-xs text-slate-400 leading-tight">Medical Coordinator</p>
         </div>
+        <button
+          onClick={onClose}
+          className="lg:hidden p-1 rounded text-slate-400 hover:text-white"
+          aria-label="Close sidebar"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -46,6 +59,7 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
+              onClick={onClose}
               className={[
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                 active
@@ -65,5 +79,34 @@ export default function Sidebar() {
         <p className="text-xs text-slate-500">EverM Dashboard v0.1</p>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex fixed top-0 left-0 z-30 h-full w-64">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 flex">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 transition-opacity"
+            onClick={onClose}
+          />
+          {/* Sidebar panel */}
+          <div
+            className={[
+              'relative flex w-64 flex-col transition-transform duration-300',
+              isOpen ? 'translate-x-0' : '-translate-x-full',
+            ].join(' ')}
+          >
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

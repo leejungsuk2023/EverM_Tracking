@@ -197,7 +197,7 @@ export default function FollowupsPage() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-1 border-b border-gray-200">
+        <div className="flex gap-1 border-b border-gray-200 overflow-x-auto">
           {FILTER_TABS.map(({ key, label }) => (
             <button
               key={key}
@@ -213,7 +213,7 @@ export default function FollowupsPage() {
           ))}
         </div>
 
-        {/* Table */}
+        {/* Table / Cards */}
         {loading ? (
           <div className="rounded-xl border border-gray-200 bg-white p-12 text-center text-gray-400">
             {t('common.loading')}
@@ -224,143 +224,227 @@ export default function FollowupsPage() {
             <p className="text-sm text-gray-500">{t('followup.empty')}</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  <th className="px-4 py-3 text-left">{t('followup.patient')}</th>
-                  <th className="px-4 py-3 text-left">{t('followup.surgery_type')}</th>
-                  <th className="px-4 py-3 text-center">{t('followup.fu_number')}</th>
-                  <th className="px-4 py-3 text-left">{t('followup.scheduled')}</th>
-                  <th className="px-4 py-3 text-center">D+X</th>
-                  <th className="px-4 py-3 text-left">{t('followup.precaution')}</th>
-                  <th className="px-4 py-3 text-center">{t('followup.status')}</th>
-                  <th className="px-4 py-3 text-left">{t('followup.memo')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filteredFollowups.map((followup) => {
-                  const overdue = isOverdue(followup, today);
-                  const precaution = getPrecaution(
-                    followup.patient.surgery_type,
-                    followup.patient.surgery_date,
-                    followup.scheduled_date,
-                    lang
-                  );
-                  const surgery = new Date(followup.patient.surgery_date);
-                  const scheduled = new Date(followup.scheduled_date);
-                  const daysDiff = Math.round((scheduled.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
-                  const isCritical = daysDiff >= 1 && daysDiff <= 3;
-                  const rowClass = followup.completed
-                    ? 'bg-green-50'
-                    : overdue
-                    ? 'bg-red-50'
-                    : precaution
-                    ? 'bg-amber-50'
-                    : 'bg-white';
+          <>
+            {/* Mobile cards (sm 미만) */}
+            <div className="flex flex-col gap-3 sm:hidden">
+              {filteredFollowups.map((followup) => {
+                const overdue = isOverdue(followup, today);
+                const precaution = getPrecaution(
+                  followup.patient.surgery_type,
+                  followup.patient.surgery_date,
+                  followup.scheduled_date,
+                  lang
+                );
+                const surgery = new Date(followup.patient.surgery_date);
+                const scheduled = new Date(followup.scheduled_date);
+                const daysDiff = Math.round((scheduled.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
+                const isCritical = daysDiff >= 1 && daysDiff <= 3;
+                const cardClass = followup.completed
+                  ? 'border-green-200 bg-green-50'
+                  : overdue
+                  ? 'border-red-200 bg-red-50'
+                  : precaution
+                  ? 'border-amber-200 bg-amber-50'
+                  : 'border-gray-200 bg-white';
 
-                  return (
-                    <tr key={followup.followup_id} className={`${rowClass} transition-colors hover:brightness-95`}>
-                      {/* 환자명 */}
-                      <td className="px-4 py-3">
-                        <Link
-                          href={`/patients/${followup.patient_id}`}
-                          className="font-medium text-blue-600 hover:underline"
-                        >
-                          {followup.patient.k_name}
-                        </Link>
-                      </td>
-
-                      {/* 수술 유형 뱃지 */}
-                      <td className="px-4 py-3">
-                        <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                          {SURGERY_TYPE_LABELS[followup.patient.surgery_type]}
-                        </span>
-                      </td>
-
-                      {/* F/U 번호 */}
-                      <td className="px-4 py-3 text-center">
-                        <span className="font-semibold text-gray-700">#{followup.followup_number}</span>
-                      </td>
-
-                      {/* 예정일 */}
-                      <td className="px-4 py-3">
-                        <span className={followup.completed ? 'line-through text-gray-400' : ''}>
-                          {followup.scheduled_date}
-                        </span>
-                      </td>
-
-                      {/* D+X */}
-                      <td className="px-4 py-3 text-center text-gray-500">
+                return (
+                  <div key={followup.followup_id} className={`rounded-xl border p-4 space-y-2 ${cardClass}`}>
+                    <div className="flex items-center justify-between">
+                      <Link
+                        href={`/patients/${followup.patient_id}`}
+                        className="font-semibold text-blue-600 hover:underline"
+                      >
+                        {followup.patient.k_name}
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={followup.completed}
+                          onChange={() => handleToggleComplete(followup)}
+                          className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-green-500"
+                        />
+                        {overdue && (
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
+                            {t('followup.overdue_badge')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 font-medium">
+                        {SURGERY_TYPE_LABELS[followup.patient.surgery_type]}
+                      </span>
+                      <span className="font-semibold text-gray-700">#{followup.followup_number}</span>
+                      <span className={followup.completed ? 'line-through text-gray-400' : ''}>
+                        {followup.scheduled_date}
+                      </span>
+                      <span className="text-gray-500">
                         {calcDaysAfterSurgery(followup.patient.surgery_date, followup.scheduled_date)}
-                      </td>
+                      </span>
+                    </div>
+                    {precaution && (
+                      <div>
+                        <button
+                          onClick={() => togglePrecaution(followup.followup_id)}
+                          className={`flex items-center gap-1 text-xs font-medium ${
+                            isCritical ? 'text-red-600' : 'text-amber-600'
+                          }`}
+                        >
+                          <AlertTriangle size={12} className="flex-shrink-0" />
+                          <span>
+                            {expandedPrecautions[followup.followup_id]
+                              ? t('followup.precaution')
+                              : precaution.slice(0, 40) + (precaution.length > 40 ? '…' : '')}
+                          </span>
+                        </button>
+                        {expandedPrecautions[followup.followup_id] && (
+                          <p className={`mt-1 text-xs leading-relaxed ${
+                            isCritical ? 'text-red-600' : 'text-amber-700'
+                          }`}>
+                            {precaution}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <input
+                      type="text"
+                      value={memoEdits[followup.followup_id] ?? followup.notes ?? ''}
+                      onChange={(e) =>
+                        setMemoEdits((prev) => ({ ...prev, [followup.followup_id]: e.target.value }))
+                      }
+                      onBlur={() => handleMemoBlur(followup)}
+                      placeholder={t('followup.memo_placeholder')}
+                      className="w-full rounded border border-transparent bg-transparent px-1 py-0.5 text-sm text-gray-600 placeholder-gray-300 outline-none transition hover:border-gray-200 focus:border-blue-300 focus:bg-white focus:ring-1 focus:ring-blue-200"
+                    />
+                  </div>
+                );
+              })}
+            </div>
 
-                      {/* 주의사항 */}
-                      <td className="px-4 py-3 max-w-[200px]">
-                        {precaution ? (
-                          <div>
-                            <button
-                              onClick={() => togglePrecaution(followup.followup_id)}
-                              className={`flex items-center gap-1 text-xs font-medium ${
-                                isCritical ? 'text-red-600' : 'text-amber-600'
-                              }`}
-                            >
-                              <AlertTriangle size={12} className="flex-shrink-0" />
-                              <span className="truncate max-w-[160px]">
-                                {expandedPrecautions[followup.followup_id]
-                                  ? t('followup.precaution')
-                                  : precaution.slice(0, 40) + (precaution.length > 40 ? '…' : '')}
+            {/* Desktop table (sm 이상) */}
+            <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200 bg-white">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    <th className="px-4 py-3 text-left">{t('followup.patient')}</th>
+                    <th className="px-4 py-3 text-left">{t('followup.surgery_type')}</th>
+                    <th className="px-4 py-3 text-center">{t('followup.fu_number')}</th>
+                    <th className="px-4 py-3 text-left">{t('followup.scheduled')}</th>
+                    <th className="px-4 py-3 text-center">D+X</th>
+                    <th className="px-4 py-3 text-left">{t('followup.precaution')}</th>
+                    <th className="px-4 py-3 text-center">{t('followup.status')}</th>
+                    <th className="px-4 py-3 text-left">{t('followup.memo')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filteredFollowups.map((followup) => {
+                    const overdue = isOverdue(followup, today);
+                    const precaution = getPrecaution(
+                      followup.patient.surgery_type,
+                      followup.patient.surgery_date,
+                      followup.scheduled_date,
+                      lang
+                    );
+                    const surgery = new Date(followup.patient.surgery_date);
+                    const scheduled = new Date(followup.scheduled_date);
+                    const daysDiff = Math.round((scheduled.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
+                    const isCritical = daysDiff >= 1 && daysDiff <= 3;
+                    const rowClass = followup.completed
+                      ? 'bg-green-50'
+                      : overdue
+                      ? 'bg-red-50'
+                      : precaution
+                      ? 'bg-amber-50'
+                      : 'bg-white';
+
+                    return (
+                      <tr key={followup.followup_id} className={`${rowClass} transition-colors hover:brightness-95`}>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/patients/${followup.patient_id}`}
+                            className="font-medium text-blue-600 hover:underline"
+                          >
+                            {followup.patient.k_name}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                            {SURGERY_TYPE_LABELS[followup.patient.surgery_type]}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className="font-semibold text-gray-700">#{followup.followup_number}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={followup.completed ? 'line-through text-gray-400' : ''}>
+                            {followup.scheduled_date}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center text-gray-500">
+                          {calcDaysAfterSurgery(followup.patient.surgery_date, followup.scheduled_date)}
+                        </td>
+                        <td className="px-4 py-3 max-w-[200px]">
+                          {precaution ? (
+                            <div>
+                              <button
+                                onClick={() => togglePrecaution(followup.followup_id)}
+                                className={`flex items-center gap-1 text-xs font-medium ${
+                                  isCritical ? 'text-red-600' : 'text-amber-600'
+                                }`}
+                              >
+                                <AlertTriangle size={12} className="flex-shrink-0" />
+                                <span className="truncate max-w-[160px]">
+                                  {expandedPrecautions[followup.followup_id]
+                                    ? t('followup.precaution')
+                                    : precaution.slice(0, 40) + (precaution.length > 40 ? '…' : '')}
+                                </span>
+                              </button>
+                              {expandedPrecautions[followup.followup_id] && (
+                                <p className={`mt-1 text-xs leading-relaxed ${
+                                  isCritical ? 'text-red-600' : 'text-amber-700'
+                                }`}>
+                                  {precaution}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-300">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={followup.completed}
+                              onChange={() => handleToggleComplete(followup)}
+                              className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-green-500"
+                            />
+                            {overdue && (
+                              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
+                                {t('followup.overdue_badge')}
                               </span>
-                            </button>
-                            {expandedPrecautions[followup.followup_id] && (
-                              <p className={`mt-1 text-xs leading-relaxed ${
-                                isCritical ? 'text-red-600' : 'text-amber-700'
-                              }`}>
-                                {precaution}
-                              </p>
                             )}
                           </div>
-                        ) : (
-                          <span className="text-xs text-gray-300">-</span>
-                        )}
-                      </td>
-
-                      {/* 상태 체크박스 + 뱃지 */}
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-2">
+                        </td>
+                        <td className="px-4 py-3">
                           <input
-                            type="checkbox"
-                            checked={followup.completed}
-                            onChange={() => handleToggleComplete(followup)}
-                            className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-green-500"
+                            type="text"
+                            value={memoEdits[followup.followup_id] ?? followup.notes ?? ''}
+                            onChange={(e) =>
+                              setMemoEdits((prev) => ({ ...prev, [followup.followup_id]: e.target.value }))
+                            }
+                            onBlur={() => handleMemoBlur(followup)}
+                            placeholder={t('followup.memo_placeholder')}
+                            className="w-full min-w-[120px] rounded border border-transparent bg-transparent px-1 py-0.5 text-sm text-gray-600 placeholder-gray-300 outline-none transition hover:border-gray-200 focus:border-blue-300 focus:bg-white focus:ring-1 focus:ring-blue-200"
                           />
-                          {overdue && (
-                            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
-                              {t('followup.overdue_badge')}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* 메모 인라인 입력 */}
-                      <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          value={memoEdits[followup.followup_id] ?? followup.notes ?? ''}
-                          onChange={(e) =>
-                            setMemoEdits((prev) => ({ ...prev, [followup.followup_id]: e.target.value }))
-                          }
-                          onBlur={() => handleMemoBlur(followup)}
-                          placeholder={t('followup.memo_placeholder')}
-                          className="w-full min-w-[120px] rounded border border-transparent bg-transparent px-1 py-0.5 text-sm text-gray-600 placeholder-gray-300 outline-none transition hover:border-gray-200 focus:border-blue-300 focus:bg-white focus:ring-1 focus:ring-blue-200"
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
   );

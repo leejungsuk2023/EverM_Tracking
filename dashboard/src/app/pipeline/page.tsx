@@ -66,51 +66,51 @@ export default function PipelinePage() {
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 mb-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           {/* Search */}
-          <div className="relative">
+          <div className="relative w-full sm:w-64">
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder={t('pipeline.search')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 w-48"
+              className="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
 
-          {/* Filter buttons */}
-          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
-            <Filter size={12} className="ml-1.5 text-slate-400" />
-            {filterButtons.map(({ key, labelKey }) => (
-              <button
-                key={key}
-                onClick={() => setFilterMode(key)}
-                className={[
-                  'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
-                  filterMode === key
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700',
-                ].join(' ')}
-              >
-                {t(labelKey)}
-              </button>
-            ))}
-          </div>
+          <p className="text-sm text-slate-500">
+            {loading ? t('common.loading') : (
+              <>
+                <span className="font-semibold text-slate-800">{filtered.length}</span>
+                {' '}{t('pipeline.patients')}
+                {filtered.length !== patients.length && (
+                  <span className="text-slate-400"> / {patients.length}{t('pipeline.patients')}</span>
+                )}
+              </>
+            )}
+          </p>
         </div>
 
-        <p className="text-sm text-slate-500">
-          {loading ? t('common.loading') : (
-            <>
-              <span className="font-semibold text-slate-800">{filtered.length}</span>
-              {' '}{t('pipeline.patients')}
-              {filtered.length !== patients.length && (
-                <span className="text-slate-400"> / {patients.length}{t('pipeline.patients')}</span>
-              )}
-            </>
-          )}
-        </p>
+        {/* Filter buttons */}
+        <div className="flex flex-wrap items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+          <Filter size={12} className="ml-1.5 flex-shrink-0 text-slate-400" />
+          {filterButtons.map(({ key, labelKey }) => (
+            <button
+              key={key}
+              onClick={() => setFilterMode(key)}
+              className={[
+                'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
+                filterMode === key
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700',
+              ].join(' ')}
+            >
+              {t(labelKey)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Error state */}

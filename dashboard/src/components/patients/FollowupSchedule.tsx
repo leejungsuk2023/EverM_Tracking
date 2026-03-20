@@ -80,7 +80,7 @@ export default function FollowupSchedule({ followups, surgeryDate, surgeryType, 
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
       <h2 className="text-base font-semibold text-slate-800 mb-4">{t('patient.followup_schedule')}</h2>
       {followups.length === 0 ? (
         <p className="text-sm text-slate-400">{t('common.no_data')}</p>

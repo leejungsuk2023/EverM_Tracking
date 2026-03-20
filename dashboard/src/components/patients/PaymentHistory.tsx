@@ -36,20 +36,20 @@ export default function PaymentHistory({ patient }: PaymentHistoryProps) {
       <div className="space-y-3 mb-5">
         <div className="flex items-center gap-2">
           <DollarSign size={15} className="text-slate-400" />
-          <span className="text-sm text-slate-500 w-24">{t('payment.total')}</span>
-          <span className="text-sm font-semibold text-slate-800">{formatKRW(patient.total_surgery_cost)}</span>
+          <span className="text-xs sm:text-sm text-slate-500 w-20 sm:w-24">{t('payment.total')}</span>
+          <span className="text-xs sm:text-sm font-semibold text-slate-800">{formatKRW(patient.total_surgery_cost)}</span>
         </div>
         <div className="flex items-center gap-2">
           <CreditCard size={15} className="text-slate-400" />
-          <span className="text-sm text-slate-500 w-24">{t('payment.deposit')}</span>
-          <span className={`text-sm font-semibold ${patient.deposit_paid ? 'text-green-600' : 'text-red-500'}`}>
+          <span className="text-xs sm:text-sm text-slate-500 w-20 sm:w-24">{t('payment.deposit')}</span>
+          <span className={`text-xs sm:text-sm font-semibold ${patient.deposit_paid ? 'text-green-600' : 'text-red-500'}`}>
             {patient.deposit_paid ? formatKRW(patient.deposit_amount) : t('payment.none')}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <CreditCard size={15} className="text-slate-400" />
-          <span className="text-sm text-slate-500 w-24">{t('payment.exchange')}</span>
-          <span className="text-sm text-slate-700">{t(`exchange.${patient.exchange_method}`)}</span>
+          <span className="text-xs sm:text-sm text-slate-500 w-20 sm:w-24">{t('payment.exchange')}</span>
+          <span className="text-xs sm:text-sm text-slate-700">{t(`exchange.${patient.exchange_method}`)}</span>
         </div>
       </div>
 
